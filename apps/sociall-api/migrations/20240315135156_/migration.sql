@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Post` MODIFY `gallery` MEDIUMTEXT NOT NULL;

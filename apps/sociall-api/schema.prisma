@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = "mysql://root:CordobaArgentina@35.238.75.192:3306/sociall"
+}
+
+model Session {
+  id          String    @id
+  shop        String
+  state       String
+  isOnline    Boolean   @default(false)
+  scope       String?
+  expires     DateTime?
+  accessToken String
+  userId      BigInt?
+}
+
+model Installations {
+  id                           Int                            @id @default(autoincrement())
+  shopifyClientId              String                         @unique
+  shopifyAppUrl                String                         @unique
+  shopifyApiKey                String
+  shopifyApiSecret             String
+  createdAt                    DateTime                       @default(now())
+  Installations_SocialNetworks Installations_SocialNetworks[]
+}
+
+model SocialNetworks {
+  id                           Int                            @id @default(autoincrement())
+  name                         String                         @unique
+  createdAt                    DateTime                       @default(now())
+  Installations_SocialNetworks Installations_SocialNetworks[]
+}
+
+model Installations_SocialNetworks {
+  id                Int            @id @default(autoincrement())
+  installations     Installations  @relation(fields: [installations_id], references: [id])
+  installations_id  Int
+  socialNetworks    SocialNetworks @relation(fields: [socialNetworks_id], references: [id])
+  socialNetworks_id Int
+  token             String         @db.MediumText
+  userId            String
+  createdAt         DateTime       @default(now())
+  Post              Post[]
+  @@unique(name: "likeId", [installations_id, socialNetworks_id])
+}
+
+model Post {
+  id                              Int                          @id @default(autoincrement())
+  installations_SocialNetworks    Installations_SocialNetworks @relation(fields: [installations_SocialNetworks_id], references: [id])
+  installations_SocialNetworks_id Int
+  text                            String                       @db.MediumText
+  hashtags                        String                       @db.MediumText
+  imageUrl                        String
+  gallery                         String                       @db.MediumText
+  postDate                        DateTime                     @default(now())
+  timeOfDay                       String
+  sent                            Boolean                      @default(false)
+  createdAt                       DateTime                     @default(now())
+}
