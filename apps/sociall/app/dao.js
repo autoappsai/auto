@@ -1,7 +1,8 @@
 import db from "./db.server";
 import axios from "axios";
 
-const serverUrl = "https://auto-sociall-api.vercel.app";
+const serverUrl = "https://sociallapi.autoapps.ai";
+//const serverUrl = process.env.API_URL;
 //const serverUrl = "http://localhost:3000";
 const graphQLUrl = "https://sharing-flamingo-52.hasura.app/v1/graphql";
 const graphqlHeaders = {
