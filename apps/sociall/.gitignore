@@ -15,7 +15,6 @@ package-lock.json
 yarn.lock
 
 shopify.app.toml
-shopify.web.toml
 
 **/.DS_Store
 .vscode
