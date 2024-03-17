@@ -25,7 +25,7 @@ model Installations {
   id                           Int                            @id @default(autoincrement())
   shopifyClientId              String                         @unique
   shopifyAppUrl                String                         @unique
-  shopifyApiKey                String
+  shopifyApiKey                String                         @unique
   shopifyApiSecret             String
   createdAt                    DateTime                       @default(now())
   Installations_SocialNetworks Installations_SocialNetworks[]

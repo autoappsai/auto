@@ -201,3 +201,13 @@ export async function appInit(
 
   return installations_SocialNetwork;
 }
+
+export async function getInstallation(shopifyApiKey) {
+  const installation = await prisma.installations.findUnique({
+    where: {
+      shopifyApiKey: shopifyApiKey,
+    },
+  });
+
+  return installation;
+}
