@@ -1,37 +1,54 @@
-import db from "./db.server";
 import axios from "axios";
+import { GRAPHQL_HEADERS } from "./constants";
 
-const serverUrl = "https://sociallapi.autoapps.ai";
+//const serverUrl = "https://sociallapi.autoapps.ai";
 //const serverUrl = process.env.API_URL;
-//const serverUrl = "http://localhost:3000";
+const serverUrl = "http://localhost:3000";
 const graphQLUrl = "https://sharing-flamingo-52.hasura.app/v1/graphql";
-const graphqlHeaders = {
-  headers: {
-    "content-type": "application/json",
-    "x-hasura-admin-secret":
-      "lJIxWxSddHSA6Qg1adOz5uXWxBL2p2I3kKXLkixDGivsv0FYep3FfnBORZmt97kP",
-  },
-};
 
-export async function initTokenFlow(installationsSocialNetworks_id) {
-  const response = await axios.post(serverUrl + "/init-token-flow", {
-    installationsSocialNetworks_id: installationsSocialNetworks_id,
-  });
+let authHeader;
+
+export async function setJwtToken(token) {
+  authHeader = {
+    headers: {
+      Authorization: "Bearer " + token,
+    },
+  };
+}
+
+export async function initTokenFlow(jwtToken) {
+  setJwtToken(jwtToken);
+  const response = await axios.post(
+    serverUrl + "/init-token-flow",
+    null,
+    authHeader,
+  );
   return response.data;
 }
 
-export async function getPosts(params) {
-  const response = await axios.post(serverUrl + "/posts", params);
+export async function getPosts(params, jwtToken) {
+  setJwtToken(jwtToken);
+  const response = await axios.post(serverUrl + "/posts", params, authHeader);
   return response.data;
 }
 
-export async function createPost(post) {
-  const response = await axios.post(serverUrl + "/create-post", post);
+export async function createPost(post, jwtToken) {
+  setJwtToken(jwtToken);
+  const response = await axios.post(
+    serverUrl + "/create-post",
+    post,
+    authHeader,
+  );
   return response.data;
 }
 
 export async function appInit(params) {
   const response = await axios.post(serverUrl + "/app-init", params);
+  return response.data;
+}
+
+export async function login(params) {
+  const response = await axios.post(serverUrl + "/login", params);
   return response.data;
 }
 
@@ -42,7 +59,7 @@ export async function createPostGQL(post) {
   const response1 = await axios.post(
     graphQLUrl,
     { query: query1 },
-    graphqlHeaders,
+    GRAPHQL_HEADERS,
   );
 
   const instSocId = response1.data.data.Installations_SocialNetworks[0].id;
@@ -62,7 +79,7 @@ export async function createPostGQL(post) {
   const response2 = await axios.post(
     graphQLUrl,
     { query: query2 },
-    graphqlHeaders,
+    GRAPHQL_HEADERS,
   );
 
   console.log("EP " + JSON.stringify(response2.data.data));

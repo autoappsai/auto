@@ -2,14 +2,13 @@ import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Page } from "@shopify/polaris";
 import EmptyCard from "../components/EmptyCard";
-import { createPost, getPosts, initTokenFlow } from "../dao";
+import { getPosts, initTokenFlow } from "../dao";
 import { authenticate } from "../shopify.server";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
 export const loader = async ({ request }) => {
   const { admin } = await authenticate.admin(request);
-
 
   const query = `
         {
@@ -40,7 +39,7 @@ export const loader = async ({ request }) => {
         }
   `;
 
-  const response = await admin.graphql(query)
+  const response = await admin.graphql(query);
   const response_json = await response.json();
 
   return json({
@@ -48,7 +47,8 @@ export const loader = async ({ request }) => {
     SOCIAL_NETWORK_ID: process.env.SOCIAL_NETWORK_ID,
     INST_SN_ID: process.env.INST_SN_ID,
     TOKEN_READY: process.env.TOKEN_READY,
-    products: response_json.data.products.edges
+    JWT_TOKEN: process.env.JWT_TOKEN,
+    products: response_json.data.products.edges,
   });
 };
 
@@ -57,7 +57,7 @@ export default function Index() {
 
   const [instaToken, setInstaToken] = useState(
     // loaderData.TOKEN_READY === "true",
-    true
+    true,
   ); //temporarily set this to true to bypass auth
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -70,22 +70,21 @@ export default function Index() {
   // Get today's date
   const today = new Date();
   // Array to hold day labels
-  const dayLabels = ['Today'];
+  const dayLabels = ["Today"];
 
-  console.log({ "INST": loaderData.INST_SN_ID });
-
+  console.log({ INST: loaderData.INST_SN_ID });
 
   // Loop to generate labels for the upcoming weekdays
   for (let i = 1; i <= weekdays; i++) {
     const nextDay = new Date();
     nextDay.setDate(today.getDate() + i);
     // Push the label for the next day
-    dayLabels.push(nextDay.toLocaleString('en-US', { weekday: 'long' }));
+    dayLabels.push(nextDay.toLocaleString("en-US", { weekday: "long" }));
   }
 
   async function authFB() {
-    initTokenFlow(loaderData.INST_SN_ID);
-    
+    initTokenFlow(loaderData.JWT_TOKEN);
+
     var url = `https://www.facebook.com/v19.0/dialog/oauth?client_id=761954749115582&display=popup&redirect_uri=https://auto-testing-remix-js.vercel.app/oauth&response_type=token&scope=instagram_basic,instagram_content_publish,instagram_manage_comments,instagram_manage_insights,pages_show_list,pages_read_engagement,page_events,pages_manage_cta`;
     var width = 600;
     var height = 400;
@@ -103,17 +102,13 @@ export default function Index() {
     }
   }
 
-
-
-
   async function exampleGetPosts() {
     const params = {
       date: "2023-02-25T00:00:00.000Z",
-      installationsSocialNetworks_id: loaderData.INST_SN_ID,
     };
 
-    const posts = await getPosts(params);
-    console.log("Postss" + JSON.stringify(posts));
+    const posts = await getPosts(params, loaderData.JWT_TOKEN);
+    console.log("Postss " + JSON.stringify(posts));
     // Return will be like: {"id":34,"installations_SocialNetworks_id":1,"text":"A text2.","hashtags":"#hashtags","imageUrl":"url","postDate":"2024-02-25T00:00:00.000Z","timeOfDay":"Morning","sent":false,"createdAt":"2024-03-08T02:15:19.789Z"}
   }
 
@@ -135,13 +130,17 @@ export default function Index() {
                   </h1>
                   <p className="text-sm mt-3">
                     Generated posts will be automatically published based on the
-                    day and time of the day you defined. Days without generated posts will
-                    not post to your Instagram account.
+                    day and time of the day you defined. Days without generated
+                    posts will not post to your Instagram account.
                   </p>
                 </div>
                 {dayLabels.map((label, index) => (
                   <AnimatePresence>
-                    <EmptyCard card={label} products={products} INST={loaderData.INST_SN_ID} />
+                    <EmptyCard
+                      card={label}
+                      products={products}
+                      INST={loaderData.INST_SN_ID}
+                    />
                   </AnimatePresence>
                 ))}
               </div>
@@ -172,13 +171,13 @@ export default function Index() {
                     <img src="/img/auto_connection.png" width="81" />
                   </div>
                 </div>
-                  <button
-                    target="_blank"
-                    onClick={() => authFB()}
-                    className="py-4 px-10 bg-black text-white text-base font-bold mt-8 rounded"
-                  >
-                    Connect Now
-                  </button>
+                <button
+                  target="_blank"
+                  onClick={() => authFB()}
+                  className="py-4 px-10 bg-black text-white text-base font-bold mt-8 rounded"
+                >
+                  Connect Now
+                </button>
               </div>
             </div>
           )}

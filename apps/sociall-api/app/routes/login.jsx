@@ -25,9 +25,9 @@ export const action = async ({ request }) => {
     case "POST": {
       const body = await request.json();
 
-      const installation = getInstallation(body.username);
+      const installation = await getInstallation(body.username);
 
-      if (installation !== null && installation.password === body.password) {
+      if (installation !== null && installation.shopifyApiSecret === body.password) {
         const token = jwt.sign(body.username, process.env.JWT_SECRET_KEY);
         return json({ token });
       } else {

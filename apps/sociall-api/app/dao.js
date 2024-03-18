@@ -1,15 +1,16 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
-export async function initTokenFlow(installationsSocialNetworks_id) {
-  const installations_SocialNetwork = await prisma.installations_SocialNetworks.update({
-    where: {
-      id: parseInt(installationsSocialNetworks_id),
-    },
-    data: { token: "Pending", userId: "Pending", createdAt: new Date().toISOString() },
-  });
+function toMySQLFormat(date) {
+  return date.toISOString().slice(0, 19).replace("T", " ");
+}
 
-  return installations_SocialNetwork;
+export async function initTokenFlow(shopifyApiKey) {
+  await prisma.$queryRaw`
+    update sociall.Installations_SocialNetworks isn, sociall.Installations i
+    set isn.token = "Pending", isn.userId = "Pending", isn.createdAt = ${toMySQLFormat(new Date())}
+    where isn.installations_id = i.id
+    and i.shopifyApiKey = ${shopifyApiKey}`;
 }
 
 export async function saveLongLivedTokenToLatest(longLivedToken) {
@@ -31,38 +32,6 @@ export async function saveLongLivedTokenToLatest(longLivedToken) {
   });
 
   return installations_SocialNetwork;
-}
-
-export async function createPost(aPost) {
-  if (!aPost.installations_SocialNetworks_id && aPost.installations_id && aPost.socialNetworks_id) {
-    const installations_SocialNetwork = await prisma.Installations_SocialNetworks.findUnique({
-      where: {
-        likeId: {
-          installations_id: parseInt(aPost.installations_id),
-          socialNetworks_id: parseInt(aPost.socialNetworks_id),
-        },
-      },
-    });
-
-    delete aPost.installations_id;
-    delete aPost.socialNetworks_id;
-    aPost.installations_SocialNetworks_id = installations_SocialNetwork.id;
-  }
-  aPost.installations_SocialNetworks_id = parseInt(aPost.installations_SocialNetworks_id);
-
-  // const post = await prisma.post.create({
-  //   data: aPost,
-  // });
-
-  const post = await prisma.post.upsert({
-    where: {
-      id: aPost.id || 0,
-    },
-    update: { ...aPost },
-    create: { ...aPost },
-  });
-
-  return post;
 }
 
 function getCurrentDates() {
@@ -101,6 +70,34 @@ export async function getTodaysNotSentPosts(timeOfDay) {
     },
     include: {
       installations_SocialNetworks: true,
+    },
+  });
+
+  return posts;
+}
+
+export async function getPosts(date, shopifyApiKey, socialNetworkName) {
+  // const posts = await prisma.$queryRaw`
+  // SELECT p.*
+  // FROM sociall.Post p, sociall.Installations_SocialNetworks isn, sociall.Installations i, sociall.SocialNetworks sn
+  // WHERE p.installations_SocialNetworks_id = isn.id AND isn.installations_id = i.id AND isn.socialNetworks_id = sn.id
+  // AND i.shopifyApiKey = ${shopifyApiKey}
+  // AND sn.name = ${socialNetworkName}
+  // AND p.postDate > ${date}`;
+
+  const posts = await prisma.post.findMany({
+    where: {
+      installations_SocialNetworks: {
+        installations: {
+          shopifyApiKey: shopifyApiKey,
+        },
+        socialNetworks: {
+          name: socialNetworkName,
+        },
+      },
+      postDate: {
+        gte: date,
+      },
     },
   });
 
@@ -210,4 +207,29 @@ export async function getInstallation(shopifyApiKey) {
   });
 
   return installation;
+}
+
+export async function createPost(aPost, shopifyApiKey, socialNetworkName) {
+  const installations_SocialNetwork = await prisma.installations_SocialNetworks.findFirst({
+    where: {
+      installations: {
+        shopifyApiKey: shopifyApiKey,
+      },
+      socialNetworks: {
+        name: socialNetworkName,
+      },
+    },
+  });
+
+  aPost.installations_SocialNetworks_id = installations_SocialNetwork.id;
+
+  const post = await prisma.post.upsert({
+    where: {
+      id: aPost.id || 0,
+    },
+    update: { ...aPost },
+    create: { ...aPost },
+  });
+
+  return post;
 }

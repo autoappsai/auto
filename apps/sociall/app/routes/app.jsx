@@ -4,7 +4,7 @@ import polarisStyles from "@shopify/polaris/build/esm/styles.css";
 import { boundary } from "@shopify/shopify-app-remix/server";
 import { AppProvider } from "@shopify/shopify-app-remix/react";
 import { authenticate } from "../shopify.server";
-import { appInit } from "../dao";
+import { appInit, login, setJwtToken } from "../dao";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
@@ -18,6 +18,13 @@ export const loader = async ({ request }) => {
     shopifyApiSecret: process.env.SHOPIFY_API_SECRET,
     socialNetworkName: "Instagram",
   });
+
+  const { token } = await login({
+    username: process.env.SHOPIFY_API_KEY,
+    password: process.env.SHOPIFY_API_SECRET,
+  });
+
+  process.env.JWT_TOKEN = token;
 
   process.env.INSTALLATION_ID = initResponse.installations.id;
   process.env.SOCIAL_NETWORK_ID = initResponse.socialNetworks.id;
