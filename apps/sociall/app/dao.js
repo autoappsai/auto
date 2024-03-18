@@ -1,9 +1,9 @@
 import axios from "axios";
 import { GRAPHQL_HEADERS } from "./constants";
 
-//const serverUrl = "https://sociallapi.autoapps.ai";
+const serverUrl = "https://sociallapi.autoapps.ai";
 //const serverUrl = process.env.API_URL;
-const serverUrl = "http://localhost:3000";
+//const serverUrl = "http://localhost:3000";
 const graphQLUrl = "https://sharing-flamingo-52.hasura.app/v1/graphql";
 
 let authHeader;
