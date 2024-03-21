@@ -1,9 +1,8 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "202db42c098da04ff196f0aa16f74cf4"
-# client_id = "6c1e2bab4aedc9e2927dbc4852b0cc46"
-name = "Sociall"
-application_url = "https://sociall-heroku-cfdab19fb85b.herokuapp.com"
+client_id = "6c1e2bab4aedc9e2927dbc4852b0cc46"
+name = "Sociall-Dev"
+application_url = "https://shirt-ks-cottage-des.trycloudflare.com"
 embedded = true
 
 [build]
@@ -13,12 +12,13 @@ dev_store_url = "sociall-store.myshopify.com"
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 scopes = "write_products"
+use_legacy_install_flow = true
 
 [auth]
 redirect_urls = [
-  "https://sociall-heroku-cfdab19fb85b.herokuapp.com/auth/callback",
-  "https://sociall-heroku-cfdab19fb85b.herokuapp.com/auth/shopify/callback",
-  "https://sociall-heroku-cfdab19fb85b.herokuapp.com/api/auth/callback"
+  "https://shirt-ks-cottage-des.trycloudflare.com/auth/callback",
+  "https://shirt-ks-cottage-des.trycloudflare.com/auth/shopify/callback",
+  "https://shirt-ks-cottage-des.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
