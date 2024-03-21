@@ -19,7 +19,7 @@
     "prisma": "prisma",
     "graphql-codegen": "graphql-codegen",
     "debug": "shopify app dev",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate && prisma migrate deploy"
   },
   "dependencies": {
     "@prisma/client": "^5.8.0",
