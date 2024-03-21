@@ -1,8 +1,9 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "202db42c098da04ff196f0aa16f74cf4"
+# client_id = "6c1e2bab4aedc9e2927dbc4852b0cc46"
 name = "Sociall"
-application_url = "https://auto-app-rouge.vercel.app"
+application_url = "https://sociall-heroku-cfdab19fb85b.herokuapp.com"
 embedded = true
 
 [build]
@@ -15,9 +16,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://auto-app-rouge.vercel.app/auth/callback",
-  "https://auto-app-rouge.vercel.app/auth/shopify/callback",
-  "https://auto-app-rouge.vercel.app/api/auth/callback"
+  "https://sociall-heroku-cfdab19fb85b.herokuapp.com/auth/callback",
+  "https://sociall-heroku-cfdab19fb85b.herokuapp.com/auth/shopify/callback",
+  "https://sociall-heroku-cfdab19fb85b.herokuapp.com/api/auth/callback"
 ]
 
 [webhooks]
