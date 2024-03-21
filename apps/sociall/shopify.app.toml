@@ -2,7 +2,7 @@
 
 client_id = "6c1e2bab4aedc9e2927dbc4852b0cc46"
 name = "Sociall-Dev"
-application_url = "https://shirt-ks-cottage-des.trycloudflare.com"
+application_url = "https://durable-hills-operates-accessing.trycloudflare.com"
 embedded = true
 
 [build]
@@ -16,9 +16,9 @@ use_legacy_install_flow = true
 
 [auth]
 redirect_urls = [
-  "https://shirt-ks-cottage-des.trycloudflare.com/auth/callback",
-  "https://shirt-ks-cottage-des.trycloudflare.com/auth/shopify/callback",
-  "https://shirt-ks-cottage-des.trycloudflare.com/api/auth/callback"
+  "https://durable-hills-operates-accessing.trycloudflare.com/auth/callback",
+  "https://durable-hills-operates-accessing.trycloudflare.com/auth/shopify/callback",
+  "https://durable-hills-operates-accessing.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
