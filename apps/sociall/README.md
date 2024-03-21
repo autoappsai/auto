@@ -10,3 +10,5 @@ Fix Docker command issue
 sudo vi  ~/.docker/config.json
 Replace “credsStore” with “credStore”
 :wq
+
+Prod URL: https://admin.shopify.com/store/sociall-store/apps/sociall/app
