@@ -143,7 +143,7 @@ export async function appInit(installationParam, socialNetworkName) {
     where: {
       shop: installationParam.shop,
     },
-    update: {},
+    update: {accessToken: installationParam.accessToken},
     create: installationParam,
   });
 
