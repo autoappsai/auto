@@ -27,7 +27,7 @@ export const action = async ({ request }) => {
 
       const installation = await getInstallation(body.username);
 
-      if (installation !== null && installation.shopifyApiSecret === body.password) {
+      if (installation !== null && installation.accessToken === body.password) {
         const token = jwt.sign(body.username, process.env.JWT_SECRET_KEY);
         return json({ token });
       } else {

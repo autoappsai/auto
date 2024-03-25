@@ -5,12 +5,12 @@ function toMySQLFormat(date) {
   return date.toISOString().slice(0, 19).replace("T", " ");
 }
 
-export async function initTokenFlow(shopifyApiKey) {
+export async function initTokenFlow(shop) {
   await prisma.$queryRaw`
     update sociall.Installations_SocialNetworks isn, sociall.Installations i
     set isn.token = "Pending", isn.userId = "Pending", isn.createdAt = ${toMySQLFormat(new Date())}
     where isn.installations_id = i.id
-    and i.shopifyApiKey = ${shopifyApiKey}`;
+    and i.shop = ${shop}`;
 }
 
 export async function saveLongLivedTokenToLatest(longLivedToken) {
@@ -76,20 +76,12 @@ export async function getTodaysNotSentPosts(timeOfDay) {
   return posts;
 }
 
-export async function getPosts(date, shopifyApiKey, socialNetworkName) {
-  // const posts = await prisma.$queryRaw`
-  // SELECT p.*
-  // FROM sociall.Post p, sociall.Installations_SocialNetworks isn, sociall.Installations i, sociall.SocialNetworks sn
-  // WHERE p.installations_SocialNetworks_id = isn.id AND isn.installations_id = i.id AND isn.socialNetworks_id = sn.id
-  // AND i.shopifyApiKey = ${shopifyApiKey}
-  // AND sn.name = ${socialNetworkName}
-  // AND p.postDate > ${date}`;
-
+export async function getPosts(date, shop, socialNetworkName) {
   const posts = await prisma.post.findMany({
     where: {
       installations_SocialNetworks: {
         installations: {
-          shopifyApiKey: shopifyApiKey,
+          shop: shop,
         },
         socialNetworks: {
           name: socialNetworkName,
@@ -146,24 +138,13 @@ export async function markAllPostsAsSent() {
   return updatePosts;
 }
 
-export async function appInit(
-  shopifyClientId,
-  shopifyAppUrl,
-  shopifyApiKey,
-  shopifyApiSecret,
-  socialNetworkName
-) {
+export async function appInit(installationParam, socialNetworkName) {
   const installation = await prisma.installations.upsert({
     where: {
-      shopifyClientId: shopifyClientId,
+      shop: installationParam.shop,
     },
     update: {},
-    create: {
-      shopifyClientId: shopifyClientId,
-      shopifyAppUrl: shopifyAppUrl,
-      shopifyApiKey: shopifyApiKey,
-      shopifyApiSecret: shopifyApiSecret,
-    },
+    create: installationParam,
   });
 
   const socialNetwork = await prisma.socialNetworks.upsert({
@@ -199,21 +180,21 @@ export async function appInit(
   return installations_SocialNetwork;
 }
 
-export async function getInstallation(shopifyApiKey) {
+export async function getInstallation(shop) {
   const installation = await prisma.installations.findUnique({
     where: {
-      shopifyApiKey: shopifyApiKey,
+      shop: shop,
     },
   });
 
   return installation;
 }
 
-export async function createPost(aPost, shopifyApiKey, socialNetworkName) {
+export async function createPost(aPost, shop, socialNetworkName) {
   const installations_SocialNetwork = await prisma.installations_SocialNetworks.findFirst({
     where: {
       installations: {
-        shopifyApiKey: shopifyApiKey,
+        shop: shop,
       },
       socialNetworks: {
         name: socialNetworkName,

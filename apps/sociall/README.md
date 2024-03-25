@@ -12,3 +12,5 @@ Replace “credsStore” with “credStore”
 :wq
 
 Prod URL: https://admin.shopify.com/store/sociall-store/apps/sociall/app
+
+Prettier: npx prettier --write "**/*.jsx"

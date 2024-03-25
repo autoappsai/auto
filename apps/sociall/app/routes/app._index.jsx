@@ -2,13 +2,45 @@ import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Page } from "@shopify/polaris";
 import EmptyCard from "../components/EmptyCard";
-import { getPosts, initTokenFlow } from "../dao";
 import { authenticate } from "../shopify.server";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import { appInit, login, getSession, initTokenFlow  } from "../dao";
+
 
 export const loader = async ({ request }) => {
   const { admin } = await authenticate.admin(request);
+
+  const { searchParams } = new URL(request.url);
+  const shop = searchParams.get("shop");
+
+  const session = await getSession(shop);
+
+  const initResponse = await appInit({
+    shop: shop,
+    accessToken: session.accessToken,
+    shopifyAppUrl: process.env.SHOPIFY_APP_URL,
+    shopifyApiKey: process.env.SHOPIFY_API_KEY,
+    shopifyApiSecret: process.env.SHOPIFY_API_SECRET
+  });
+
+  const { token } = await login({
+    username: shop,
+    password: session.accessToken,
+  });
+
+  process.env.JWT_TOKEN = token;
+
+  process.env.INSTALLATION_ID = initResponse.installations.id;
+  process.env.SOCIAL_NETWORK_ID = initResponse.socialNetworks.id;
+  process.env.INST_SN_ID = initResponse.id;
+  process.env.TOKEN_READY = false;
+
+  if (initResponse.token !== null && initResponse.token !== "Pending") {
+    process.env.TOKEN_READY = true;
+  }
+
+
 
   const query = `
         {
@@ -43,9 +75,6 @@ export const loader = async ({ request }) => {
   const response_json = await response.json();
 
   return json({
-    INSTALLATION_ID: process.env.INSTALLATION_ID,
-    SOCIAL_NETWORK_ID: process.env.SOCIAL_NETWORK_ID,
-    INST_SN_ID: process.env.INST_SN_ID,
     TOKEN_READY: process.env.TOKEN_READY,
     JWT_TOKEN: process.env.JWT_TOKEN,
     products: response_json.data.products.edges,
@@ -56,9 +85,8 @@ export default function Index() {
   const loaderData = useLoaderData();
 
   const [instaToken, setInstaToken] = useState(
-    // loaderData.TOKEN_READY === "true",
-    true,
-  ); //temporarily set this to true to bypass auth
+    loaderData.TOKEN_READY === "true"
+  );
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -72,7 +100,7 @@ export default function Index() {
   // Array to hold day labels
   const dayLabels = ["Today"];
 
-  console.log({ INST: loaderData.INST_SN_ID });
+  console.log({ JWT_TOKEN: loaderData.JWT_TOKEN });
 
   // Loop to generate labels for the upcoming weekdays
   for (let i = 1; i <= weekdays; i++) {
@@ -99,17 +127,22 @@ export default function Index() {
 
     if (fbWindow) {
       fbWindow.focus();
+      
+      if (fbWindow) {
+        var checkClosed = setInterval(function () {
+          if (fbWindow.closed) {
+            clearInterval(checkClosed);
+            fbWindow = null;
+            window.location.reload();
+          }
+        }, 500);
+      }
     }
   }
 
-  async function exampleGetPosts() {
-    const params = {
-      date: "2023-02-25T00:00:00.000Z",
-    };
-
-    const posts = await getPosts(params, loaderData.JWT_TOKEN);
-    console.log("Postss " + JSON.stringify(posts));
-    // Return will be like: {"id":34,"installations_SocialNetworks_id":1,"text":"A text2.","hashtags":"#hashtags","imageUrl":"url","postDate":"2024-02-25T00:00:00.000Z","timeOfDay":"Morning","sent":false,"createdAt":"2024-03-08T02:15:19.789Z"}
+  async function logout() {
+    await initTokenFlow(loaderData.JWT_TOKEN);
+    window.location.reload();
   }
 
   return (
@@ -126,7 +159,7 @@ export default function Index() {
               <div className="cards lg:grid lg:grid-cols-2 gap-8 bg-gray-100 p-12">
                 <div className="lg:col-span-2">
                   <h1 className="text-2xl font-bold">
-                    Manage Your Weekly Schedule
+                    Manage Your Weekly Schedule - <span style={{cursor: "pointer"}} onClick={() => logout()}>Logout</span>
                   </h1>
                   <p className="text-sm mt-3">
                     Generated posts will be automatically published based on the

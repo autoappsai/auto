@@ -23,7 +23,8 @@ model Session {
 
 model Installations {
   id                           Int                            @id @default(autoincrement())
-  shopifyClientId              String                         @unique
+  shop                         String                         @unique @default("")
+  accessToken                  String                         @default("")
   shopifyAppUrl                String                         @unique
   shopifyApiKey                String                         @unique
   shopifyApiSecret             String

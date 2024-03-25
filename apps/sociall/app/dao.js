@@ -1,5 +1,6 @@
 import axios from "axios";
 import { GRAPHQL_HEADERS } from "./constants";
+import prisma from "./db.server";
 
 const serverUrl = "https://sociallapi.autoapps.ai";
 //const serverUrl = process.env.API_URL;
@@ -85,4 +86,14 @@ export async function createPostGQL(post) {
   console.log("EP " + JSON.stringify(response2.data.data));
 
   return response2.data.data.insert_Post_one;
+}
+
+export async function getSession(shop) {
+  const session = await prisma.session.findFirst({
+    where: {
+      shop: shop,
+    },
+  });
+
+  return session;
 }
