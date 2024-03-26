@@ -1,5 +1,5 @@
 import axios from "axios";
-import { GRAPHQL_HEADERS, SOCIALL_API_SERVER_URL, GRAPHQL_SERVER_URL } from "./constants";
+import { SOCIALL_API_SERVER_URL } from "./constants";
 import prisma from "./db.server";
 
 

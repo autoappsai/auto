@@ -1,13 +1,4 @@
-export const GRAPHQL_HEADERS = {
-  headers: {
-    "content-type": "application/json",
-    "x-hasura-admin-secret":
-      "lJIxWxSddHSA6Qg1adOz5uXWxBL2p2I3kKXLkixDGivsv0FYep3FfnBORZmt97kP",
-  },
-};
 export const SOCIALL_API_SERVER_URL = "https://sociallapi.autoapps.ai";
-export const GRAPHQL_SERVER_URL = "https://sociallapi.autoapps.ai";
-
 export const AI_API_SERVER_URL = "https://auto-social-ai-s6zz7icxea-uc.a.run.app/generate_post";
 
 export const FACEBOOK_APP_ID = "761954749115582";
