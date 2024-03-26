@@ -1,7 +1,7 @@
 import { useState } from "react";
 import RobotSpinner from "./Spinner";
 import InstaCard from "./Card";
-import { createPost } from "../dao";
+import { AI_API_SERVER_URL } from "../constants";
 
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -27,7 +27,7 @@ const EmptyCard = ({ card, products, INST }) => {
             const product = getRandomCard();
             setSelectedProduct(product);
             const response = await fetch(
-                `https://auto-social-ai-s6zz7icxea-uc.a.run.app/generate_post`,
+                AI_API_SERVER_URL,
                 {
                     method: "POST",
                     headers: {

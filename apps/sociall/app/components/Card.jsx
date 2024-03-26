@@ -8,6 +8,7 @@ import { createPost } from "../dao";
 import { authenticate } from "../shopify.server";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import { AI_API_SERVER_URL } from "../constants";
 
 export const loader = async ({ request }) => {
   await authenticate.admin(request);
@@ -100,7 +101,7 @@ const InstaCard = ({
     setUpdatingText(true);
     try {
       const response = await fetch(
-        `https://auto-social-ai-s6zz7icxea-uc.a.run.app/generate_post`,
+        AI_API_SERVER_URL,
         {
           method: "POST",
           headers: {

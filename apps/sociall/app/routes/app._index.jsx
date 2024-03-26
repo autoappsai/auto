@@ -5,8 +5,8 @@ import EmptyCard from "../components/EmptyCard";
 import { authenticate } from "../shopify.server";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { appInit, login, getSession, initTokenFlow  } from "../dao";
-
+import { appInit, login, getSession, initTokenFlow, getStoreProducts  } from "../dao";
+import { FACEBOOK_DIALOG_URL } from "../constants";
 
 export const loader = async ({ request }) => {
   const { admin } = await authenticate.admin(request);
@@ -30,54 +30,18 @@ export const loader = async ({ request }) => {
   });
 
   process.env.JWT_TOKEN = token;
-
-  process.env.INSTALLATION_ID = initResponse.installations.id;
-  process.env.SOCIAL_NETWORK_ID = initResponse.socialNetworks.id;
-  process.env.INST_SN_ID = initResponse.id;
   process.env.TOKEN_READY = false;
 
   if (initResponse.token !== null && initResponse.token !== "Pending") {
     process.env.TOKEN_READY = true;
   }
 
-
-
-  const query = `
-        {
-          products(first: 100) {
-            edges {
-              node {
-                id
-                title
-                description
-                images(first: 3) {
-                  edges {
-                    node {
-                      url
-                    }
-                  }
-                }
-                variants(first: 1) {
-                  edges {
-                    node {
-                      price
-                      sku
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-  `;
-
-  const response = await admin.graphql(query);
-  const response_json = await response.json();
+  const products = await getStoreProducts(admin);
 
   return json({
     TOKEN_READY: process.env.TOKEN_READY,
     JWT_TOKEN: process.env.JWT_TOKEN,
-    products: response_json.data.products.edges,
+    products: products,
   });
 };
 
@@ -113,7 +77,6 @@ export default function Index() {
   async function authFB() {
     initTokenFlow(loaderData.JWT_TOKEN);
 
-    var url = `https://www.facebook.com/v19.0/dialog/oauth?client_id=761954749115582&display=popup&redirect_uri=https://auto-testing-remix-js.vercel.app/oauth&response_type=token&scope=instagram_basic,instagram_content_publish,instagram_manage_comments,instagram_manage_insights,pages_show_list,pages_read_engagement,page_events,pages_manage_cta`;
     var width = 600;
     var height = 400;
 
@@ -123,11 +86,12 @@ export default function Index() {
     var features =
       "width=" + width + ",height=" + height + ",top=" + top + ",left=" + left;
 
-    var fbWindow = window.open(url, "fbLogin", features);
+    var fbWindow = window.open(FACEBOOK_DIALOG_URL, "fbLogin", features);
 
     if (fbWindow) {
       fbWindow.focus();
       
+      // TODO: Negrada, habria que detectar la ventana emergente cerrada por un evento, pero no anda.
       if (fbWindow) {
         var checkClosed = setInterval(function () {
           if (fbWindow.closed) {
