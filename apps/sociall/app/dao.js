@@ -1,13 +1,11 @@
-import axios from "axios";
-import { SOCIALL_API_SERVER_URL } from "./constants";
-import prisma from "./db.server";
-
+import axios from 'axios';
+import { SOCIALL_API_SERVER_URL } from './constants';
+import prisma from './db.server';
 
 // SHOPIFY API ----
 
-  export async function getStoreProducts(admin) {
-    
-    const query = `
+export async function getStoreProducts(admin) {
+	const query = `
           {
             products(first: 100) {
               edges {
@@ -36,9 +34,9 @@ import prisma from "./db.server";
           }
     `;
 
-    const response = await admin.graphql(query);
-    const response_json = await response.json();
-    return response_json.data.products.edges;
+	const response = await admin.graphql(query);
+	const response_json = await response.json();
+	return response_json.data.products.edges;
 }
 
 // SOCIALL API ----
@@ -46,57 +44,64 @@ import prisma from "./db.server";
 let authHeader;
 
 export async function setJwtToken(token) {
-  authHeader = {
-    headers: {
-      Authorization: "Bearer " + token,
-    },
-  };
+	authHeader = {
+		headers: {
+			Authorization: 'Bearer ' + token,
+		},
+	};
 }
 
 export async function initTokenFlow(jwtToken) {
-  setJwtToken(jwtToken);
-  const response = await axios.post(
-    SOCIALL_API_SERVER_URL + "/init-token-flow",
-    null,
-    authHeader,
-  );
-  return response.data;
+	setJwtToken(jwtToken);
+	const response = await axios.post(
+		SOCIALL_API_SERVER_URL + '/init-token-flow',
+		null,
+		authHeader
+	);
+	return response.data;
 }
 
 export async function getPosts(params, jwtToken) {
-  setJwtToken(jwtToken);
-  const response = await axios.post(SOCIALL_API_SERVER_URL + "/posts", params, authHeader);
-  return response.data;
+	setJwtToken(jwtToken);
+	const response = await axios.post(
+		SOCIALL_API_SERVER_URL + '/posts',
+		params,
+		authHeader
+	);
+	return response.data;
 }
 
 export async function createPost(post, jwtToken) {
-  setJwtToken(jwtToken);
-  const response = await axios.post(
-    SOCIALL_API_SERVER_URL + "/create-post",
-    post,
-    authHeader,
-  );
-  return response.data;
+	setJwtToken(jwtToken);
+	const response = await axios.post(
+		SOCIALL_API_SERVER_URL + '/create-post',
+		post,
+		authHeader
+	);
+	return response.data;
 }
 
 export async function appInit(params) {
-  const response = await axios.post(SOCIALL_API_SERVER_URL + "/app-init", params);
-  return response.data;
+	const response = await axios.post(
+		SOCIALL_API_SERVER_URL + '/app-init',
+		params
+	);
+	return response.data;
 }
 
 export async function login(params) {
-  const response = await axios.post(SOCIALL_API_SERVER_URL + "/login", params);
-  return response.data;
+	const response = await axios.post(SOCIALL_API_SERVER_URL + '/login', params);
+	return response.data;
 }
 
 // LOCAL ----
 
 export async function getSession(shop) {
-  const session = await prisma.session.findFirst({
-    where: {
-      shop: shop,
-    },
-  });
+	const session = await prisma.session.findFirst({
+		where: {
+			shop: shop,
+		},
+	});
 
-  return session;
+	return session;
 }

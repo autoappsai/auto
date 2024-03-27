@@ -9,7 +9,9 @@ export const loader = async ({ request }) => {
 
   const longLivedToken = await getLongLivedToken(accessToken);
 
-  const installations_SocialNetwork = await saveLongLivedTokenToLatest(longLivedToken);
+  const installations_SocialNetwork = await saveLongLivedTokenToLatest(
+    longLivedToken
+  );
 
   return json(installations_SocialNetwork);
 };

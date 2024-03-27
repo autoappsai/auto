@@ -13,4 +13,4 @@ Replace “credsStore” with “credStore”
 
 Prod URL: https://admin.shopify.com/store/sociall-store/apps/sociall/app
 
-Prettier: npx prettier --write "**/*.jsx"
+Prettier: sudo npx prettier --write "**/*.{js,jsx}"

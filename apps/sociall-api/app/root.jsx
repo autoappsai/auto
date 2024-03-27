@@ -1,7 +1,16 @@
 import { cssBundleHref } from "@remix-run/css-bundle";
-import { Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react";
+import {
+  Links,
+  LiveReload,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+} from "@remix-run/react";
 
-export const links = () => [...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : [])];
+export const links = () => [
+  ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
+];
 
 export default function App() {
   return (

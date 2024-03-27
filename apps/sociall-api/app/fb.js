@@ -5,14 +5,20 @@ const client_id = "761954749115582";
 const client_secret = "063ef8a356a9cf22d6cadc61957977d0";
 
 export async function instagramPublish(imageUrl, caption, accessToken) {
-  const instagramBusinessAccount = await getInstagramBusinessAccount(accessToken);
+  const instagramBusinessAccount = await getInstagramBusinessAccount(
+    accessToken
+  );
   const creationId = await createMediaContainer(
     instagramBusinessAccount,
     imageUrl,
     caption,
     accessToken
   );
-  const publicationId = await mediaPublish(instagramBusinessAccount, creationId, accessToken);
+  const publicationId = await mediaPublish(
+    instagramBusinessAccount,
+    creationId,
+    accessToken
+  );
   return publicationId ?? null;
 }
 
@@ -32,18 +38,26 @@ export async function createMediaContainer(
   aCaption,
   accessToken
 ) {
-  const { data } = await axios.post(fbUrl + "/" + instagramBusinessAccount + "/media", null, {
-    params: {
-      image_url: imageUrl,
-      caption: aCaption,
-      access_token: accessToken,
-    },
-  });
+  const { data } = await axios.post(
+    fbUrl + "/" + instagramBusinessAccount + "/media",
+    null,
+    {
+      params: {
+        image_url: imageUrl,
+        caption: aCaption,
+        access_token: accessToken,
+      },
+    }
+  );
 
   return data.id ?? null;
 }
 
-export async function mediaPublish(instagramBusinessAccount, creationId, accessToken) {
+export async function mediaPublish(
+  instagramBusinessAccount,
+  creationId,
+  accessToken
+) {
   const { data } = await axios.post(
     fbUrl + "/" + instagramBusinessAccount + "/media_publish",
     null,

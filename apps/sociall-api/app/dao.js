@@ -8,7 +8,9 @@ function toMySQLFormat(date) {
 export async function initTokenFlow(shop) {
   await prisma.$queryRaw`
     update sociall.Installations_SocialNetworks isn, sociall.Installations i
-    set isn.token = "Pending", isn.userId = "Pending", isn.createdAt = ${toMySQLFormat(new Date())}
+    set isn.token = "Pending", isn.userId = "Pending", isn.createdAt = ${toMySQLFormat(
+      new Date()
+    )}
     where isn.installations_id = i.id
     and i.shop = ${shop}`;
 }
@@ -24,12 +26,13 @@ export async function saveLongLivedTokenToLatest(longLivedToken) {
     throw new Error("No rows found.");
   }
 
-  const installations_SocialNetwork = await prisma.installations_SocialNetworks.update({
-    where: {
-      id: latestRow.id,
-    },
-    data: { token: longLivedToken, createdAt: new Date().toISOString() },
-  });
+  const installations_SocialNetwork =
+    await prisma.installations_SocialNetworks.update({
+      where: {
+        id: latestRow.id,
+      },
+      data: { token: longLivedToken, createdAt: new Date().toISOString() },
+    });
 
   return installations_SocialNetwork;
 }
@@ -143,7 +146,7 @@ export async function appInit(installationParam, socialNetworkName) {
     where: {
       shop: installationParam.shop,
     },
-    update: {accessToken: installationParam.accessToken},
+    update: { accessToken: installationParam.accessToken },
     create: installationParam,
   });
 
@@ -157,25 +160,26 @@ export async function appInit(installationParam, socialNetworkName) {
     },
   });
 
-  const installations_SocialNetwork = await prisma.installations_SocialNetworks.upsert({
-    include: {
-      installations: true,
-      socialNetworks: true,
-    },
-    where: {
-      likeId: {
+  const installations_SocialNetwork =
+    await prisma.installations_SocialNetworks.upsert({
+      include: {
+        installations: true,
+        socialNetworks: true,
+      },
+      where: {
+        likeId: {
+          installations_id: installation.id,
+          socialNetworks_id: socialNetwork.id,
+        },
+      },
+      update: {},
+      create: {
         installations_id: installation.id,
         socialNetworks_id: socialNetwork.id,
+        token: "Pending",
+        userId: "Pending",
       },
-    },
-    update: {},
-    create: {
-      installations_id: installation.id,
-      socialNetworks_id: socialNetwork.id,
-      token: "Pending",
-      userId: "Pending",
-    },
-  });
+    });
 
   return installations_SocialNetwork;
 }
@@ -191,16 +195,17 @@ export async function getInstallation(shop) {
 }
 
 export async function createPost(aPost, shop, socialNetworkName) {
-  const installations_SocialNetwork = await prisma.installations_SocialNetworks.findFirst({
-    where: {
-      installations: {
-        shop: shop,
+  const installations_SocialNetwork =
+    await prisma.installations_SocialNetworks.findFirst({
+      where: {
+        installations: {
+          shop: shop,
+        },
+        socialNetworks: {
+          name: socialNetworkName,
+        },
       },
-      socialNetworks: {
-        name: socialNetworkName,
-      },
-    },
-  });
+    });
 
   aPost.installations_SocialNetworks_id = installations_SocialNetwork.id;
 
