@@ -57,26 +57,25 @@ export default function Index() {
 	const [instaToken, setInstaToken] = useState(
 		loaderData.TOKEN_READY === 'true'
 	);
-	const [cards, setCards] = useState([]);
+
 	const [loading, setLoading] = useState(false);
 
-	const weekdays = 6;
+	const weekdays = 6; // You want to generate labels for 6 more days after "Today"
 
 	const { products } = useLoaderData();
 
-	// define the day of the week
 	// Get today's date
 	const today = new Date();
-	// Array to hold day labels
+
 	const dayLabels = ['Today'];
 
-	console.log({ JWT_TOKEN: loaderData.JWT_TOKEN });
+	const tomorrow = new Date(today);
+	tomorrow.setDate(today.getDate() + 1);
+	dayLabels.push("Tomorrow");
 
-	// Loop to generate labels for the upcoming weekdays
-	for (let i = 1; i <= weekdays; i++) {
-		const nextDay = new Date();
+	for (let i = 2; i <= weekdays; i++) {
+		const nextDay = new Date(today);
 		nextDay.setDate(today.getDate() + i);
-		// Push the label for the next day
 		dayLabels.push(nextDay.toLocaleString('en-US', { weekday: 'long' }));
 	}
 
