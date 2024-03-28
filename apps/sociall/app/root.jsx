@@ -26,7 +26,7 @@ export default function App() {
 				<script
 					async
 					defer
-					crossorigin="anonymous"
+					crossOrigin="anonymous"
 					src="https://connect.facebook.net/en_US/all.js"
 				></script>
 			</head>

@@ -5,58 +5,22 @@ import EmptyCard from '../components/EmptyCard';
 import { authenticate } from '../shopify.server';
 import { json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
-import {
-	appInit,
-	login,
-	getSession,
-	initTokenFlow,
-	getStoreProducts,
-} from '../dao';
+import { useGlobalState } from '../context';
+import { initTokenFlow, getStoreProducts } from '../dao';
 import { FACEBOOK_DIALOG_URL } from '../constants';
 
 export const loader = async ({ request }) => {
 	const { admin } = await authenticate.admin(request);
-
-	const { searchParams } = new URL(request.url);
-	const shop = searchParams.get('shop');
-
-	const session = await getSession(shop);
-
-	const initResponse = await appInit({
-		shop: shop,
-		accessToken: session.accessToken,
-		shopifyAppUrl: process.env.SHOPIFY_APP_URL,
-		shopifyApiKey: process.env.SHOPIFY_API_KEY,
-		shopifyApiSecret: process.env.SHOPIFY_API_SECRET,
-	});
-
-	const { token } = await login({
-		username: shop,
-		password: session.accessToken,
-	});
-
-	process.env.JWT_TOKEN = token;
-	process.env.TOKEN_READY = false;
-
-	if (initResponse.token !== null && initResponse.token !== 'Pending') {
-		process.env.TOKEN_READY = true;
-	}
-
 	const products = await getStoreProducts(admin);
-
 	return json({
-		TOKEN_READY: process.env.TOKEN_READY,
-		JWT_TOKEN: process.env.JWT_TOKEN,
 		products: products,
 	});
 };
 
 export default function Index() {
-	const loaderData = useLoaderData();
+	const { state, dispatch } = useGlobalState();
 
-	const [instaToken, setInstaToken] = useState(
-		loaderData.TOKEN_READY === 'true'
-	);
+	const loaderData = useLoaderData();
 
 	const [loading, setLoading] = useState(false);
 
@@ -71,7 +35,7 @@ export default function Index() {
 
 	const tomorrow = new Date(today);
 	tomorrow.setDate(today.getDate() + 1);
-	dayLabels.push("Tomorrow");
+	dayLabels.push('Tomorrow');
 
 	for (let i = 2; i <= weekdays; i++) {
 		const nextDay = new Date(today);
@@ -80,7 +44,7 @@ export default function Index() {
 	}
 
 	async function authFB() {
-		initTokenFlow(loaderData.JWT_TOKEN);
+		initTokenFlow(state.jwtToken);
 
 		var width = 600;
 		var height = 400;
@@ -108,33 +72,20 @@ export default function Index() {
 			}
 		}
 	}
-
-	async function logout() {
-		await initTokenFlow(loaderData.JWT_TOKEN);
-		window.location.reload();
-	}
-
 	return (
 		<Page>
-			{/* {instaToken && (<button className="bg-green-500 text-white py-3 px-6 fixed right-0 top-auto align-middle text-base"><div className="inline-block mr-1 align-middle"><AnimatedSaveIcon /></div> Save Week</button>)} */}
 			<div className="bg-white w-full shadow-md rounded-xl text-text-primary font-primaryFont mb-16">
 				<div className="p-12 flex justify-between items-center w-full">
-					<img src="/img/logo_sociall_t.jpg" width="180" alt="autosociall" />
+					<img src="/img/logo_sociall.jpg" width="180" alt="autosociall" />
 				</div>
 
 				<div className="content">
-					{instaToken ? (
+					{state.facebookTokenExists ? (
 						<>
 							<div className="cards lg:grid lg:grid-cols-2 gap-8 bg-gray-100 p-12">
 								<div className="lg:col-span-2">
 									<h1 className="text-2xl font-bold">
-										Manage Your Weekly Schedule -{' '}
-										<span
-											style={{ cursor: 'pointer' }}
-											onClick={() => logout()}
-										>
-											Logout
-										</span>
+										Manage Your Weekly Schedule
 									</h1>
 									<p className="text-sm mt-3">
 										Generated posts will be automatically published based on the
