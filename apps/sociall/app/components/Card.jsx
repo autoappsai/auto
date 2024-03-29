@@ -5,18 +5,9 @@ import RobotSpinner from './Spinner';
 import Carousel from 'react-multi-carousel';
 import Saver from './Saver';
 import { createPost } from '../dao';
-import { authenticate } from '../shopify.server';
-import { json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import { AI_API_SERVER_URL } from '../constants';
-
-export const loader = async ({ request }) => {
-	await authenticate.admin(request);
-
-	return json({
-		JWT_TOKEN: process.env.JWT_TOKEN,
-	});
-};
+import { useGlobalState } from '../context';
 
 const InstaCard = ({
 	card,
@@ -47,6 +38,8 @@ const InstaCard = ({
 		e.preventDefault(); // Prevent any default action
 		setIsEditable(true);
 	};
+
+	const { state, dispatch } = useGlobalState();
 
 	const loaderData = useLoaderData();
 
@@ -166,7 +159,7 @@ const InstaCard = ({
 		};
 
 		try {
-			const response = await createPost(postObj, loaderData.JWT_TOKEN); // Assuming createPost is an Axios call
+			const response = await createPost(postObj, state.jwtToken); // Assuming createPost is an Axios call
 
 			setPostID(response.id);
 			isSaving(false);

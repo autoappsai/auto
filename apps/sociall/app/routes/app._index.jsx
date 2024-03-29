@@ -8,16 +8,23 @@ import { useLoaderData } from '@remix-run/react';
 import { useGlobalState } from '../context';
 import { initTokenFlow, getStoreProducts } from '../dao';
 import { FACEBOOK_DIALOG_URL } from '../constants';
+import { useNavigate } from 'react-router-dom';
 
 export const loader = async ({ request }) => {
 	const { admin } = await authenticate.admin(request);
 	const products = await getStoreProducts(admin);
+	const url = new URL(request.url);
+	const queryParams = url.searchParams.toString();
+
 	return json({
 		products: products,
+		queryParams: queryParams,
 	});
 };
 
 export default function Index() {
+	const navigate = useNavigate();
+
 	const { state, dispatch } = useGlobalState();
 
 	const loaderData = useLoaderData();
@@ -44,6 +51,7 @@ export default function Index() {
 	}
 
 	async function authFB() {
+		console.log('loaderData ' + loaderData.queryParams);
 		initTokenFlow(state.jwtToken);
 
 		var width = 600;
@@ -66,7 +74,9 @@ export default function Index() {
 					if (fbWindow.closed) {
 						clearInterval(checkClosed);
 						fbWindow = null;
-						window.location.reload();
+						//window.location.reload();1
+						//navigate(`/app?${loaderData.queryParams}`);
+						dispatch({ type: 'SET_FACEBOOK_TOKEN_EXISTS', payload: true });
 					}
 				}, 500);
 			}
@@ -95,11 +105,7 @@ export default function Index() {
 								</div>
 								{dayLabels.map((label, index) => (
 									<AnimatePresence>
-										<EmptyCard
-											card={label}
-											products={products}
-											INST={loaderData.INST_SN_ID}
-										/>
+										<EmptyCard card={label} products={products} />
 									</AnimatePresence>
 								))}
 							</div>

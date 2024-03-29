@@ -23,17 +23,12 @@ export default function App() {
 				<meta name="viewport" content="width=device-width,initial-scale=1" />
 				<Meta />
 				<Links />
-				<script
-					async
-					defer
-					crossOrigin="anonymous"
-					src="https://connect.facebook.net/en_US/all.js"
-				></script>
 			</head>
 			<body>
 				<Outlet />
 				<LiveReload />
 				<Scripts />
+				<ScrollRestoration />
 			</body>
 		</html>
 	);

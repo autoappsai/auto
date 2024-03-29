@@ -4,8 +4,7 @@ import polarisStyles from '@shopify/polaris/build/esm/styles.css';
 import { boundary } from '@shopify/shopify-app-remix/server';
 import { AppProvider } from '@shopify/shopify-app-remix/react';
 import { authenticate } from '../shopify.server';
-import { GlobalStateProvider } from '../context';
-import { useGlobalState } from '../context';
+import { useGlobalState, GlobalStateProvider } from '../context';
 import { useEffect } from 'react';
 import { getSession, appInit, login } from '../dao';
 export const links = () => [{ rel: 'stylesheet', href: polarisStyles }];
@@ -15,10 +14,12 @@ export const loader = async ({ request }) => {
 	const { searchParams } = new URL(request.url);
 	const shop = searchParams.get('shop');
 
-	const session = await getSession(shop);
+	if (process.env.SHOP == null) process.env.SHOP = shop;
+
+	const session = await getSession(process.env.SHOP);
 
 	const initResponse = await appInit({
-		shop: shop,
+		shop: process.env.SHOP,
 		accessToken: session.accessToken,
 		shopifyAppUrl: process.env.SHOPIFY_APP_URL,
 		shopifyApiKey: process.env.SHOPIFY_API_KEY,
@@ -26,15 +27,15 @@ export const loader = async ({ request }) => {
 	});
 
 	const { token } = await login({
-		username: shop,
+		username: process.env.SHOP,
 		password: session.accessToken,
 	});
 
-	// TODO poner JWT_TOKEN = token;
+	process.env.JWT_TOKEN = token;
 
 	return json({
 		apiKey: process.env.SHOPIFY_API_KEY || '',
-		shop: shop,
+		jwtToken: token,
 		facebookTokenExists:
 			initResponse.token !== null && initResponse.token !== 'Pending',
 	});
@@ -42,17 +43,15 @@ export const loader = async ({ request }) => {
 
 function InitializeStore() {
 	const { dispatch } = useGlobalState();
-	const { shop, facebookTokenExists } = useLoaderData();
+	const { jwtToken, facebookTokenExists } = useLoaderData();
 
 	useEffect(() => {
-		if (shop) {
-			dispatch({ type: 'SET_SHOP', payload: shop });
-			dispatch({
-				type: 'SET_FACEBOOK_TOKEN_EXISTS',
-				payload: facebookTokenExists,
-			});
-		}
-	}, [shop, dispatch]);
+		dispatch({ type: 'SET_JWT_TOKEN', payload: jwtToken });
+		dispatch({
+			type: 'SET_FACEBOOK_TOKEN_EXISTS',
+			payload: facebookTokenExists,
+		});
+	}, [dispatch]);
 
 	return null; // This component doesn't need to render anything
 }
@@ -68,7 +67,7 @@ export default function App() {
 					<Link to="/app" rel="home">
 						Home
 					</Link>
-					<Link to="/app/settings">Settings</Link>
+					<Link to={'/app/settings'}>Settings</Link>
 				</ui-nav-menu>
 				<Outlet />
 			</GlobalStateProvider>

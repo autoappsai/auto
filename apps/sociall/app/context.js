@@ -5,6 +5,7 @@ const GlobalStateContext = createContext();
 
 // Initial state
 const initialState = {
+	shop: '',
 	facebookTokenExists: Boolean,
 	jwtToken: '',
 };

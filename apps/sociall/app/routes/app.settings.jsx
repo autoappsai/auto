@@ -1,7 +1,5 @@
-import { AnimatePresence } from 'framer-motion';
 import { Image, Page } from '@shopify/polaris';
 import Disconnect from '../components/Disconnect';
-import { useLoaderData } from '@remix-run/react';
 import { useGlobalState } from '../context';
 
 export default function Settings() {
