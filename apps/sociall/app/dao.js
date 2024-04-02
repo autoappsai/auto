@@ -61,11 +61,11 @@ export async function initTokenFlow(jwtToken) {
 	return response.data;
 }
 
-export async function getPosts(params, jwtToken) {
+export async function weekPosts(jwtToken) {
 	setJwtToken(jwtToken);
 	const response = await axios.post(
-		SOCIALL_API_SERVER_URL + '/posts',
-		params,
+		SOCIALL_API_SERVER_URL + '/week-posts',
+		null,
 		authHeader
 	);
 	return response.data;

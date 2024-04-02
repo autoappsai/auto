@@ -1,4 +1,5 @@
 export const SOCIALL_API_SERVER_URL = 'https://sociallapi.autoapps.ai';
+//export const SOCIALL_API_SERVER_URL = 'http://localhost:3000';
 export const AI_API_SERVER_URL =
 	'https://auto-social-ai-s6zz7icxea-uc.a.run.app/generate_post';
 

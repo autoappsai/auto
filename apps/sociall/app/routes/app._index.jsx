@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { Page } from '@shopify/polaris';
 import EmptyCard from '../components/EmptyCard';
@@ -6,7 +6,7 @@ import { authenticate } from '../shopify.server';
 import { json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import { useGlobalState } from '../context';
-import { initTokenFlow, getStoreProducts } from '../dao';
+import { initTokenFlow, getStoreProducts, weekPosts } from '../dao';
 import { FACEBOOK_DIALOG_URL } from '../constants';
 import { useNavigate } from 'react-router-dom';
 
@@ -19,6 +19,7 @@ export const loader = async ({ request }) => {
 	return json({
 		products: products,
 		queryParams: queryParams,
+		jwtTokenEnv: process.env.JWT_TOKEN,
 	});
 };
 
@@ -34,6 +35,14 @@ export default function Index() {
 	const weekdays = 6; // You want to generate labels for 6 more days after "Today"
 
 	const { products } = useLoaderData();
+
+	useEffect(() => {
+		async function getWeekPosts() {
+			const posts = await weekPosts(loaderData.jwtTokenEnv); // TODO: the idea was to use state.jwtToken for the FE, but is not there at init.
+			console.log('posts ' + JSON.stringify(posts));
+		}
+		getWeekPosts();
+	}, []);
 
 	// Get today's date
 	const today = new Date();
