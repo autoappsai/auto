@@ -41,6 +41,8 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 
 		if (deletedPost) {
 			setLoading(false);
+			setDeleteConfirmation(false);
+			setgCard([]);
 		}
 
 		setLoading(false);
