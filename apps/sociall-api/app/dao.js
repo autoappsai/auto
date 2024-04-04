@@ -185,8 +185,6 @@ export async function getWeekPosts(shop, socialNetworkName) {
 
 	for (let i = 0; i < nextWeekDates.length; i++) {
 		const foundIndex = posts.findIndex((post) => {
-			console.log('post ' + post.postDate.toISOString());
-			console.log('nextWeekDates ' + getShortDate(nextWeekDates[i].date));
 			return (
 				getShortDate(post.postDate.toISOString()) ===
 				getShortDate(nextWeekDates[i].date)
@@ -194,8 +192,12 @@ export async function getWeekPosts(shop, socialNetworkName) {
 		});
 
 		if (foundIndex !== -1) {
-			console.log('SI');
-			// Modify the object in the array by adding a new attribute
+			// Change variable names. Maybe this should be done in FE or AI endpoint.
+			posts[foundIndex].post_description = posts[foundIndex].text;
+			posts[foundIndex].post_hashtags = posts[foundIndex].hashtags;
+			delete posts[foundIndex].text;
+			delete posts[foundIndex].hashtags;
+
 			nextWeekDates[i].post = posts[foundIndex];
 		}
 	}
