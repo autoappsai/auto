@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import RobotSpinner from './Spinner';
 import Carousel from 'react-multi-carousel';
 import Saver from './Saver';
-import { createPost } from '../dao';
+import { upsertPost } from '../dao';
 import { AI_API_SERVER_URL } from '../constants';
 import { useGlobalState } from '../context';
 
@@ -131,7 +131,7 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 		};
 
 		try {
-			const response = await createPost(postObj, state.jwtToken); // Assuming createPost is an Axios call
+			const response = await upsertPost(postObj, state.jwtToken); // Assuming upsertPost is an Axios call
 
 			setPostID(response.id);
 			isSaving(false);

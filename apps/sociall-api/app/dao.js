@@ -306,7 +306,7 @@ export async function getInstallation(shop) {
 	return installation;
 }
 
-export async function createPost(aPost, shop, socialNetworkName) {
+export async function upsertPost(aPost, shop, socialNetworkName) {
 	const installations_SocialNetwork =
 		await prisma.installations_SocialNetworks.findFirst({
 			where: {
@@ -333,5 +333,14 @@ export async function createPost(aPost, shop, socialNetworkName) {
 		},
 	});
 
+	return post;
+}
+
+export async function deletePost(id) {
+	const post = await prisma.post.delete({
+		where: {
+			id: id,
+		},
+	});
 	return post;
 }

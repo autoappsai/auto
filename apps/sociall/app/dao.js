@@ -71,11 +71,21 @@ export async function weekPosts(jwtToken) {
 	return response.data;
 }
 
-export async function createPost(post, jwtToken) {
+export async function upsertPost(post, jwtToken) {
 	setJwtToken(jwtToken);
 	const response = await axios.post(
-		SOCIALL_API_SERVER_URL + '/create-post',
+		SOCIALL_API_SERVER_URL + '/post',
 		post,
+		authHeader
+	);
+	return response.data;
+}
+
+export async function deletePost(id, jwtToken) {
+	setJwtToken(jwtToken);
+	const response = await axios.delete(
+		SOCIALL_API_SERVER_URL + '/post',
+		{ id: id },
 		authHeader
 	);
 	return response.data;

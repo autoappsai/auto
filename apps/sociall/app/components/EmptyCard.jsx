@@ -2,7 +2,7 @@ import { useState } from 'react';
 import RobotSpinner from './Spinner';
 import InstaCard from './InstaCard';
 import { AnimatePresence, motion } from 'framer-motion';
-import { createPost } from '../dao';
+import { upsertPost } from '../dao';
 import { useGlobalState } from '../context';
 
 const EmptyCard = ({ label, getCard }) => {
@@ -81,7 +81,7 @@ const EmptyCard = ({ label, getCard }) => {
 		};
 
 		try {
-			const response = await createPost(postObj, state.jwtToken); // Assuming createPost is an Axios call
+			const response = await upsertPost(postObj, state.jwtToken); // Assuming upsertPost is an Axios call
 			if (response && response.id) {
 				const updatedProd = { ...newProd[0], id: response.id };
 				// Update the state or perform additional actions with the updatedProd
