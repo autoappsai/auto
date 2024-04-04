@@ -76,7 +76,7 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 				},
 				body: JSON.stringify({
 					product_name: 'The Archived Snowboard', //TODO: Replace by Database data
-					image_url: card.imageUrl,
+					image_url: card.imageUrl ? card.imageUrl : card.image_url, //Todo, normalize this names
 					product_price: '979.99', //TODO: Replace by Database data
 					product_description: card.post_description,
 				}),
@@ -127,7 +127,7 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 			hashtags: card.post_hashtags,
 			imageUrl: card.imageUrl ? card.imageUrl : card.image_url,
 			postDate: card.postDate,
-			timeOfDay: publishTime !== '' ? publishTime : '',
+			timeOfDay: publishTime ? publishTime : '',
 		};
 
 		try {
