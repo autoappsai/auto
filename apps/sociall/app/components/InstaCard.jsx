@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import RobotSpinner from './Spinner';
 import Carousel from 'react-multi-carousel';
 import Saver from './Saver';
-import { upsertPost } from '../dao';
+import { upsertPost, deletePost } from '../dao';
 import { AI_API_SERVER_URL } from '../constants';
 import { useGlobalState } from '../context';
 
@@ -20,6 +20,7 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 	const [publishTime, setPublishTime] = useState(card.timeOfDay);
 	const [saveError, setSaveError] = useState();
 	const [loading, setLoading] = useState(false);
+	const [showDeleteConfirmation, setDeleteConfirmation] = useState(false);
 
 	// Handle double click to make div editable
 	const handleDoubleClick = (e) => {
@@ -29,6 +30,21 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 	};
 
 	const { state } = useGlobalState();
+
+	const handleDeletePost = () => {
+		setDeleteConfirmation(true);
+	};
+
+	const postDelete = async (id) => {
+		setLoading(true);
+		const deletedPost = await deletePost(id, state.jwtToken);
+
+		if (deletedPost) {
+			setLoading(false);
+		}
+
+		setLoading(false);
+	};
 
 	const responsive = {
 		superLargeDesktop: {
@@ -184,6 +200,49 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 			}}
 			className="card col-span-2 mb-10 lg:mb-0 p-4 rounded-lg border border-slate-100 bg-white shadow relative"
 		>
+			{showDeleteConfirmation && (
+				<AnimatePresence>
+					<motion.div
+						id={card.id}
+						initial={{ opacity: 0, y: -20, scale: 0.9 }}
+						animate={{ opacity: 1, y: 0, scale: 1 }}
+						exit={{
+							opacity: 0,
+							y: 20,
+							scale: 1.1,
+							transition: { duration: 0.4 },
+						}}
+						transition={{
+							y: { type: 'spring', stiffness: 100 },
+							opacity: { duration: 0.2 },
+							scale: {
+								type: 'spring',
+								stiffness: 260,
+								damping: 20,
+							},
+						}}
+						className="flex items-center justify-center absolute z-50 h-full w-full"
+					>
+						<div className="text-center p-12 bg-white border shadow-2xl shadow-slate-600 border-violet-500 inline-block rounded">
+							<h3 className="font-bold text-xl block mb-5">
+								Are you sure to delete this post?
+							</h3>
+							<button
+								onClick={() => postDelete(card.id)}
+								className="py-2 px-4 rounded inline-block bg-violet-500 text-white hover:bg-fuchsia-950 transition-all duration-300 font-bold mr-2"
+							>
+								Yes
+							</button>
+							<button
+								onClick={() => setDeleteConfirmation(false)}
+								className="py-2 px-4 rounded inline-block bg-white text-slate font-bold mr-2"
+							>
+								Cancel
+							</button>
+						</div>
+					</motion.div>
+				</AnimatePresence>
+			)}
 			{loading && (
 				<div className="absolute z-50 flex w-full h-full items-center justify-center -mt-[20px]">
 					<RobotSpinner />
@@ -391,7 +450,7 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 					</button>
 					<button
 						className="py-2 lg:px-2 w-full lg:w-auto mt-4 lg:mt-0 lg:ml-6 border border-slate-800 text-xs font-medium text-slate-800 rounded"
-						onClick={() => setgCard([])}
+						onClick={() => handleDeletePost(card.id)}
 					>
 						<svg
 							className="inline-block stroke-slate-700 mr-1 align-middle"
