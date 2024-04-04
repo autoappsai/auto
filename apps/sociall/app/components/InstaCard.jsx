@@ -413,7 +413,7 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 					</button>
 				</div>
 				<div className="ml-auto w-full lg:w-auto mt-4 lg:mt-0">
-					<form className="mr-3 inline-block lg:w-[180px] w-full">
+					<form className="mr-3 inline-block w-full">
 						{!publishTime && (
 							<span className="bg-red-100 py-1 px-2 rounded text-red-500 text-xs inline-block mr-2">
 								Please select the time to publish &rarr;
