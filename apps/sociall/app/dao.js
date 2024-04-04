@@ -83,11 +83,12 @@ export async function upsertPost(post, jwtToken) {
 
 export async function deletePost(id, jwtToken) {
 	setJwtToken(jwtToken);
-	const response = await axios.delete(
-		SOCIALL_API_SERVER_URL + '/post',
-		{ id: id },
-		authHeader
-	);
+	const response = await axios.delete(SOCIALL_API_SERVER_URL + '/post', {
+		headers: {
+			Authorization: 'Bearer ' + jwtToken,
+		},
+		data: { id: id },
+	});
 	return response.data;
 }
 
