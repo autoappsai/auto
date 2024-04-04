@@ -161,7 +161,7 @@ export default function Index() {
 					{state.facebookTokenExists ? (
 						<>
 							<div className="cards lg:grid lg:grid-cols-2 gap-8 bg-gray-100 p-12">
-								<div className="lg:col-span-2">
+								<div className="lg:col-span-2 mb-10 lg:mb-0">
 									<h1 className="text-2xl font-bold">
 										Manage Your Weekly Schedule
 									</h1>

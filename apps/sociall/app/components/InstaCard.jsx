@@ -182,7 +182,7 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 					damping: 20,
 				},
 			}}
-			className="card col-span-2 p-4 rounded-lg border border-slate-100 bg-white shadow relative"
+			className="card col-span-2 mb-10 lg:mb-0 p-4 rounded-lg border border-slate-100 bg-white shadow relative"
 		>
 			{loading && (
 				<div className="absolute z-50 flex w-full h-full items-center justify-center -mt-[20px]">
@@ -191,11 +191,11 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 			)}
 
 			{saving ? (
-				<div className="absolute top-5 left-5">
+				<div className="absolute lg:top-5 top-12 left-5">
 					<Saver />
 				</div>
 			) : !saveError && !publishTime && !saveError ? (
-				<div className="absolute top-5 left-5 text-xs">
+				<div className="absolute lg:top-5 top-12 left-5 text-xs w-full lg:w-auto text-center lg:text-left">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						fill="none"
@@ -233,7 +233,7 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 				</div>
 			) : (
 				!saveError && (
-					<div className="absolute top-5 left-5 text-xs">
+					<div className="absolute lg:top-5 top-12 left-5 text-xs w-full lg:w-auto text-center lg:text-left md:-ml-8 -ml-6 lg:-ml-0">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							fill="none"
@@ -253,7 +253,7 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 				)
 			)}
 			{saveError && (
-				<div className="absolute top-5 left-5 text-xs z-30">
+				<div className="absolute lg:top-5 left-5 text-xs z-30 top-12">
 					Error Saving Post.{' '}
 					<span
 						className="underline underline-offset-4 cursor-pointer"
@@ -266,9 +266,9 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 			)}
 
 			<div
-				className={`flex items-start p-4 transition-all duration-300 ${loading && 'opacity-40 saturate-0'}`}
+				className={`lg:flex lg:items-start  p-4 transition-all duration-300 ${loading && 'opacity-40 saturate-0'}`}
 			>
-				<div className="w-[350px] h-[400px] relative mr-10 mt-5 z-0">
+				<div className="lg:w-[350px] w-full lg:h-[400px] h-[350px] relative lg:mr-10 lg:mt-5 mt-12 z-0">
 					{card.gallery && card.gallery > 0 ? (
 						<Carousel
 							responsive={responsive}
@@ -309,7 +309,7 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 										damping: 20,
 									},
 								}}
-								className="w-[350px] h-[400px] mt-3 overflow-hidden flex items-start justify-center"
+								className="lg:w-[350px] w-full lg:h-[400px] h-[350px] mt-3 overflow-hidden flex items-start justify-center"
 							>
 								<img
 									src={card.imageUrl ? card.imageUrl : card.image_url} //TODO: make names match
@@ -345,7 +345,7 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 							suppressContentEditableWarning={true}
 						></div>
 					</div>
-					<div className="block mt-4 p-2 border-slate-100 rounded border">
+					<div className="block mt-4 p-2 border-slate-100 rounded border text-center lg:text-left">
 						<button
 							id="regen-text--button"
 							disabled={disable}
@@ -378,10 +378,10 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 					</div>
 				</div>
 			</div>
-			<div className="actions flex gap-x-4 items-center mt-4 py-4 border-t border-gray-100">
-				<div>
+			<div className="actions lg:flex gap-x-4 lg:items-center mt-4 py-4 border-t border-gray-100">
+				<div className="flex-1 w-full">
 					<button
-						className="py-2 px-2 inline-block bg-slate-800 transition-all border border-slate-800 duration-200 hover:bg-violet-600 hover:border-violet-600 text-white font-semibold text-xs rounded"
+						className="py-2 px-2 w-full lg:w-auto inline-block bg-slate-800 transition-all border border-slate-800 duration-200 hover:bg-violet-600 hover:border-violet-600 text-white font-semibold text-xs rounded"
 						disabled={disable}
 						onClick={() => {
 							handleProductRegen(), setDisable(true);
@@ -390,7 +390,7 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 						Generate New Post
 					</button>
 					<button
-						className="py-2 px-2 ml-6 border border-slate-800 text-xs font-medium text-slate-800 rounded"
+						className="py-2 lg:px-2 w-full lg:w-auto mt-4 lg:mt-0 lg:ml-6 border border-slate-800 text-xs font-medium text-slate-800 rounded"
 						onClick={() => setgCard([])}
 					>
 						<svg
@@ -412,8 +412,8 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 						Delete Post
 					</button>
 				</div>
-				<div className="ml-auto">
-					<form className="mr-3 inline-block">
+				<div className="ml-auto w-full lg:w-auto mt-4 lg:mt-0">
+					<form className="mr-3 inline-block lg:w-[180px] w-full">
 						{!publishTime && (
 							<span className="bg-red-100 py-1 px-2 rounded text-red-500 text-xs inline-block mr-2">
 								Please select the time to publish &rarr;
@@ -421,7 +421,7 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 						)}
 						<select
 							id="tod"
-							className="py-2 px-2 w-[180px] border border-gray-200 rounded text-left"
+							className="py-2 px-2 lg:w-[180px] w-full border border-gray-200 rounded text-left"
 							value={publishTime ? publishTime : 'default'}
 							onChange={(e) => {
 								const newPublishTime = e.target.value;

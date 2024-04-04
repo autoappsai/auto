@@ -131,7 +131,7 @@ const EmptyCard = ({ label, getCard }) => {
 						delay: 0.2 * label,
 						duration: 0.6,
 					}}
-					className="col-span-1 p-[3px] shadow rounded-lg cursor-pointer duration-300 transition-all hover:scale-105"
+					className="col-span-1 mb-10 lg:mb-0 p-[3px] shadow rounded-lg cursor-pointer duration-300 transition-all hover:scale-105"
 					onClick={() => {
 						handleNewCard();
 					}}
