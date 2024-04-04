@@ -4,6 +4,13 @@ const Disconnect = ({ token, dispatch }) => {
 		initTokenFlow(token);
 		dispatch({ type: 'SET_FACEBOOK_TOKEN_EXISTS', payload: false });
 	}
-	return <span onClick={() => logout(token)}>Disconnect</span>;
+	return (
+		<button
+			onClick={() => logout(token)}
+			className="py-1 px-3 bg-slate-700 text-white hover:bg-red-500 transition-all duration-300 font-semibold rounded"
+		>
+			Disconnect
+		</button>
+	);
 };
 export default Disconnect;

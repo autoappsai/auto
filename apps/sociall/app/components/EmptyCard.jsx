@@ -1,72 +1,128 @@
 import { useState } from 'react';
 import RobotSpinner from './Spinner';
-import InstaCard from './Card';
-import { AI_API_SERVER_URL } from '../constants';
-
+import InstaCard from './InstaCard';
 import { AnimatePresence, motion } from 'framer-motion';
+import { createPost } from '../dao';
+import { useGlobalState } from '../context';
 
-const EmptyCard = ({ card, products, INST }) => {
+const EmptyCard = ({ label, getCard }) => {
 	const [gcard, setgCard] = useState([]);
 	const [loading, setLoading] = useState(false);
 	const [cardError, setCardError] = useState(false);
-	const [selectedProduct, setSelectedProduct] = useState();
-	const [saving, isSaving] = useState(false);
-	const [isFirstSave, setFirstSave] = useState(true);
-	const getRandomCard = () => {
-		if (!Array.isArray(products) || products.length === 0) {
-			// Handle the case where the array is not valid or empty
-			throw new Error('The array is empty or not an array');
+
+	const { state } = useGlobalState();
+	function getDayDateInEasternTime(label) {
+		const daysOfWeek = [
+			'Sunday',
+			'Monday',
+			'Tuesday',
+			'Wednesday',
+			'Thursday',
+			'Friday',
+			'Saturday',
+		];
+		const timeZone = 'America/New_York'; // Eastern Time zone
+
+		// Get today's date in Eastern Time
+		let today = new Date(
+			new Date().toLocaleString('en-US', { timeZone: timeZone })
+		);
+		const todayDayIndex = today.getDay(); // 0 (Sunday) to 6 (Saturday)
+		const labelDayIndex = daysOfWeek.indexOf(label);
+
+		let dayDiff = labelDayIndex - todayDayIndex;
+		if (dayDiff < 0) {
+			// If the day has already passed in the current week, find it in the next week
+			dayDiff += 7;
 		}
-		const randomProductIndex = Math.floor(Math.random() * products.length);
-		return products[randomProductIndex].node;
-	};
-	const getCard = async () => {
+
+		// Adjust the date to the next occurrence of the specified day
+		today.setDate(today.getDate() + dayDiff);
+		today.setHours(0, 0, 0, 0); // Reset time to 00:00:00.000
+
+		// Format the date to 'yyyy-mm-dd 00:00:00.000' in Eastern Time
+		const year = today.getFullYear();
+		let month = today.getMonth() + 1; // getMonth() is zero-based
+		let day = today.getDate();
+
+		month = month.toString().padStart(2, '0');
+		day = day.toString().padStart(2, '0');
+
+		// Assuming the server or environment where this runs supports Intl
+		const formattedDateString = `${year}-${month}-${day}`;
+		const formattedDate = new Date(formattedDateString).toLocaleString(
+			'en-US',
+			{
+				timeZone: timeZone,
+				year: 'numeric',
+				month: '2-digit',
+				day: '2-digit',
+				hour: '2-digit',
+				minute: '2-digit',
+				second: '2-digit',
+				hour12: false,
+			}
+		);
+
+		// Removing the time part, appending '00:00:00.000' assuming the need is for a consistent format
+		const datePart = formattedDate.split(', ')[0];
+		return `${datePart} 00:00:00.000`;
+	}
+
+	const handleNewCard = async () => {
 		setCardError(false);
 		setLoading(true);
-		try {
-			const product = getRandomCard();
-			setSelectedProduct(product);
-			const response = await fetch(AI_API_SERVER_URL, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					Accept: 'application/json',
-				},
-				body: JSON.stringify({
-					product_name: product.title,
-					image_url: product.images.edges[0].node.url,
-					product_price: product.variants.edges[0].node.price,
-					product_description: product.description,
-				}),
-			});
-
-			if (!response.ok) {
-				setLoading(false);
-				setCardError(true);
-				// This will handle HTTP errors like 500, 404, etc.
-				// throw new Error(`Server error: ${response.status}`);
-			}
-
-			const data = await response.json();
-
-			if (data.error) {
-				setLoading(false);
-				setCardError(true);
-				// Handle API-specific errors
-				// throw new Error(`API error: ${data.error}`);
-			}
-
-			// If everything is fine, proceed to set your state
-			setLoading(false);
-			isSaving(true);
-			setgCard([{ gallery: product.images.edges, ...data }]);
-		} catch (error) {
-			// This will catch both network errors, fetch errors, and your custom errors
-			console.error('Fetching error:', error.message);
-			// alert(`Error: ${error.message}`);
+		const newProd = await getCard();
+		if (newProd === 'error') {
+			setCardError(true);
+		}
+		if (newProd) {
+			saveNewPost(newProd);
 			setLoading(false);
 		}
 	};
+
+	async function saveNewPost(newProd) {
+		const postObj = {
+			// TODO, checkear con mato que carajo mando como id para crear el post nuevo, no anda nada.
+			gallery: JSON.stringify(newProd[0].gallery),
+			text: newProd[0].post_description,
+			hashtags: newProd[0].post_hashtags,
+			imageUrl: newProd[0].image_url,
+			postDate: getDayDateInEasternTime(),
+			timeOfDay: '',
+		};
+
+		try {
+			const response = await createPost(postObj, state.jwtToken); // Assuming createPost is an Axios call
+			setgCard(newProd);
+		} catch (error) {
+			setCardError(true);
+			if (error.response) {
+				console.error(error.response.data);
+
+				throw {
+					statusCode: error.response.status,
+					message: error.response.data.message || 'Error',
+				};
+			} else if (error.request) {
+				// The request was made but no response was received
+				setCardError(true);
+				console.error(error.request);
+				throw {
+					statusCode: error.code || 'ERR_NETWORK',
+					message: 'Network Error',
+				};
+			} else {
+				setCardError(true);
+				// Something happened in setting up the request that triggered an Error
+				console.error('Error', error.message);
+				throw {
+					message: error.message || 'Error',
+				};
+			}
+		}
+	}
 
 	return (
 		<>
@@ -81,12 +137,12 @@ const EmptyCard = ({ card, products, INST }) => {
 						transition: { duration: 0.2 },
 					}}
 					transition={{
-						delay: 0.2 * card,
+						delay: 0.2 * label,
 						duration: 0.6,
 					}}
 					className="col-span-1 p-[3px] shadow rounded-lg cursor-pointer duration-300 transition-all hover:scale-105"
 					onClick={() => {
-						getCard();
+						handleNewCard();
 					}}
 				>
 					<div className="bg-white rounded-lg min-h-[200px] flex items-center">
@@ -97,6 +153,7 @@ const EmptyCard = ({ card, products, INST }) => {
 										<img
 											src="/img/generate_post.png"
 											width="30"
+											alt=""
 											className="inline-block w-[40px]"
 										/>
 									</div>
@@ -107,7 +164,7 @@ const EmptyCard = ({ card, products, INST }) => {
 										<button className="font-semibold">
 											Generate a post for{' '}
 											<span className="underline underline-offset-4">
-												{card}
+												{label}
 											</span>
 										</button>
 									)}
@@ -123,7 +180,7 @@ const EmptyCard = ({ card, products, INST }) => {
 								<button
 									className="font-semibold bg-black text-white px-4 py-2 rounded"
 									onClick={() => {
-										getCard();
+										handleNewCard();
 									}}
 								>
 									Try Again
@@ -137,16 +194,9 @@ const EmptyCard = ({ card, products, INST }) => {
 				<AnimatePresence>
 					<InstaCard
 						card={gcard[0]}
-						label={card}
+						label={label}
 						regen={getCard}
-						loading={loading}
 						setgCard={setgCard}
-						product={selectedProduct}
-						INST={INST}
-						saving={saving}
-						isSaving={isSaving}
-						isFirstSave={isFirstSave}
-						setFirstSave={setFirstSave}
 					/>
 				</AnimatePresence>
 			)}

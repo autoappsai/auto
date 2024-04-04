@@ -5,8 +5,8 @@ import {
 	Outlet,
 	Scripts,
 	ScrollRestoration,
+	useRouteError,
 } from '@remix-run/react';
-
 import stylesheet from './tailwind.css';
 import carouselCSS from 'react-multi-carousel/lib/styles.css';
 export function links() {
@@ -33,3 +33,20 @@ export default function App() {
 		</html>
 	);
 }
+// export function ErrorBoundary() {
+// 	const error = useRouteError();
+// 	console.error(error);
+// 	return (
+// 		<html>
+// 			<head>
+// 				<title>Oh no!</title>
+// 				<Meta />
+// 				<Links />
+// 			</head>
+// 			<body>
+// 				<h1>Oops! We have an issue.</h1>
+// 				<Scripts />
+// 			</body>
+// 		</html>
+// 	);
+// }

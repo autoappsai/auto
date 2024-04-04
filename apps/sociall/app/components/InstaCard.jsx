@@ -1,37 +1,26 @@
 import { Spinner } from '@shopify/polaris';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import RobotSpinner from './Spinner';
 import Carousel from 'react-multi-carousel';
 import Saver from './Saver';
 import { createPost } from '../dao';
-import { useLoaderData } from '@remix-run/react';
 import { AI_API_SERVER_URL } from '../constants';
 import { useGlobalState } from '../context';
 
-const InstaCard = ({
-	card,
-	label,
-	regen,
-	loading,
-	setgCard,
-	product,
-	saving,
-	isSaving,
-	INST,
-	isFirstSave,
-	setFirstSave,
-}) => {
-	const [content, setContent] = useState(card.post_description);
+const InstaCard = ({ card, label, regen, setgCard }) => {
+	// const [content, setContent] = useState(card.post_description);
 	const [isEditable, setIsEditable] = useState(false);
-	const [isManual, setIsManual] = useState(false);
+	const [saving, isSaving] = useState(false);
+	const [cardError, setCardError] = useState(false); //TODO card regen error
 	const [disable, setDisable] = useState(false);
 	const [updatingText, setUpdatingText] = useState(false); //status
-	const [triggerPostCreation, setTriggerPostCreation] = useState(false); //actual trigger
-	const [cardError, setCardError] = useState(false);
-	const [postID, setPostID] = useState(1);
-	const [publishTime, setPublishTime] = useState('');
+	const [postID, setPostID] = useState(card.id); //keep the initial id in case of the regerate post to insted of deleting and creating we directly update with the same id
+	const [regenTextError, setTextRegenError] = useState(false); //TODO text regen error
+	const [publishTime, setPublishTime] = useState(card.timeOfDay);
 	const [saveError, setSaveError] = useState();
+	const [loading, setLoading] = useState(false);
+
 	// Handle double click to make div editable
 	const handleDoubleClick = (e) => {
 		e.stopPropagation(); // Prevent event from propagating further
@@ -39,36 +28,7 @@ const InstaCard = ({
 		setIsEditable(true);
 	};
 
-	const { state, dispatch } = useGlobalState();
-
-	const loaderData = useLoaderData();
-
-	const hasSaved = useRef(false);
-
-	useEffect(() => {
-		if (isFirstSave && !hasSaved.current) {
-			console.log('Attempting first save');
-			hasSaved.current = true;
-			handlePostCreation();
-			// Remember to set hasSaved.current back to false if you ever need to reset this logic
-		} else {
-			isSaving(false);
-		}
-	}, [isFirstSave]);
-
-	useEffect(() => {
-		if (triggerPostCreation) {
-			// Make sure you have the latest state here
-			handlePostCreation(postID);
-			// Reset the trigger to avoid repeated calls
-			setTriggerPostCreation(false);
-		}
-	}, [triggerPostCreation, postID]);
-
-	useEffect(() => {
-		handlePostCreation(postID);
-		setTriggerPostCreation(false); // Call a method that triggers the saving operation.
-	}, [card]);
+	const { state } = useGlobalState();
 
 	const responsive = {
 		superLargeDesktop: {
@@ -90,6 +50,21 @@ const InstaCard = ({
 		},
 	};
 
+	const handleProductRegen = async () => {
+		setLoading(true);
+		const newProd = await regen();
+		if (newProd) {
+			console.log(newProd);
+			card.post_description = newProd[0].post_description;
+			card.post_hashtags = newProd[0].post_hashtags;
+			card.imageUrl = newProd[0].image_url;
+
+			setLoading(false);
+		}
+		setDisable(false);
+		updatePost(publishTime);
+	};
+
 	const regenText = async () => {
 		setUpdatingText(true);
 		try {
@@ -100,28 +75,29 @@ const InstaCard = ({
 					Accept: 'application/json',
 				},
 				body: JSON.stringify({
-					product_name: product.title,
-					image_url: product.images.edges[0].node.url,
-					product_price: product.variants.edges[0].node.price,
-					product_description: product.description,
+					product_name: 'The Archived Snowboard', //TODO: Replace by Database data
+					image_url: card.imageUrl,
+					product_price: '979.99', //TODO: Replace by Database data
+					product_description: card.post_description,
 				}),
 			});
 
 			if (!response.ok) {
-				setCardError(true);
+				setSaveError(true);
 				setUpdatingText(false);
 			}
 
 			const data = await response.json();
 			setUpdatingText(false);
 
+			card.post_description = data.post_description;
+
+			updatePost(publishTime);
+
 			if (data.error) {
 				setCardError(true);
 				setUpdatingText(false);
 			}
-			setgCard([{ gallery: card.gallery, ...data }]);
-
-			setTriggerPostCreation(true);
 		} catch (error) {
 			setCardError(true);
 			setUpdatingText(false);
@@ -131,31 +107,27 @@ const InstaCard = ({
 
 	const handleBlur = () => {
 		setIsEditable(false);
-		setIsManual(true);
-		setTriggerPostCreation(postID);
+		updatePost(publishTime);
 	};
 
 	const handleKeyDown = (e) => {
 		if (e.key === 'Enter') {
 			e.preventDefault();
 			e.target.blur();
-			setIsManual(true);
-			setTriggerPostCreation(postID);
 		}
 	};
 
-	async function handlePostCreation(postID) {
+	async function updatePost(publishTime) {
+		setSaveError(false);
 		isSaving(true);
-
 		const postObj = {
-			id: postID && postID,
-			gallery: JSON.stringify(card.gallery),
-			text: isManual ? content : card.post_description,
+			id: card.id,
+			gallery: card.gallery,
+			text: card.post_description,
 			hashtags: card.post_hashtags,
-			imageUrl: card.image_url,
-			postDate: '2024-02-25T00:00:00.000Z',
+			imageUrl: card.imageUrl,
+			postDate: card.postDate,
 			timeOfDay: publishTime !== '' ? publishTime : '',
-			installations_SocialNetworks_id: INST,
 		};
 
 		try {
@@ -163,8 +135,7 @@ const InstaCard = ({
 
 			setPostID(response.id);
 			isSaving(false);
-			setFirstSave(false);
-			setIsManual(false);
+			// setFirstSave(false);
 			console.log('Post' + JSON.stringify(response.data));
 		} catch (error) {
 			if (error.response) {
@@ -223,6 +194,43 @@ const InstaCard = ({
 				<div className="absolute top-5 left-5">
 					<Saver />
 				</div>
+			) : !saveError && !publishTime && !saveError ? (
+				<div className="absolute top-5 left-5 text-xs">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						strokeWidth="1.5"
+						stroke="currentColor"
+						className="w-6 h-6 stroke-green-400 inline-block mr-2"
+					>
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							d="m4.5 12.75 6 6 9-13.5"
+						/>
+					</svg>
+					Post Saved
+					{publishTime === '' && (
+						<span className="text-xs">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								strokeWidth={1.5}
+								stroke="currentColor"
+								className="w-5 h-5 inline-block mr-1 ml-4"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+								/>
+							</svg>
+							Select the time for your publication
+						</span>
+					)}
+				</div>
 			) : (
 				!saveError && (
 					<div className="absolute top-5 left-5 text-xs">
@@ -230,49 +238,26 @@ const InstaCard = ({
 							xmlns="http://www.w3.org/2000/svg"
 							fill="none"
 							viewBox="0 0 24 24"
-							stroke-width="1.5"
+							strokeWidth="1.5"
 							stroke="currentColor"
 							className="w-6 h-6 stroke-green-400 inline-block mr-2"
 						>
 							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
+								strokeLinecap="round"
+								strokeLinejoin="round"
 								d="m4.5 12.75 6 6 9-13.5"
 							/>
 						</svg>
-						Post Saved{' '}
-						{publishTime === '' ? (
-							<span className="text-xs">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									fill="none"
-									viewBox="0 0 24 24"
-									strokeWidth={1.5}
-									stroke="currentColor"
-									className="w-5 h-5 inline-block mr-1 ml-4"
-								>
-									<path
-										strokeLinecap="round"
-										strokeLinejoin="round"
-										d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-									/>
-								</svg>
-								Select the time for your publication
-							</span>
-						) : (
-							<span className="py-1 px-2 bg-green-500 rounded inline-block ml-3 text-xs font-bold text-white">
-								Ready
-							</span>
-						)}
+						Post Scheduled for {label} at {publishTime}
 					</div>
 				)
 			)}
 			{saveError && (
-				<div className="absolute top-5 left-5 text-xs">
+				<div className="absolute top-5 left-5 text-xs z-30">
 					Error Saving Post.{' '}
 					<span
-						className="underline underline-offset-4"
-						onClick={() => handlePostCreation()}
+						className="underline underline-offset-4 cursor-pointer"
+						onClick={() => updatePost()}
 					>
 						Click Here
 					</span>{' '}
@@ -283,24 +268,57 @@ const InstaCard = ({
 			<div
 				className={`flex items-start p-4 transition-all duration-300 ${loading && 'opacity-40 saturate-0'}`}
 			>
-				<div className="w-[350px] h-[400px] relative mr-10">
-					<Carousel
-						responsive={responsive}
-						srr={false}
-						containerClass="w-[350px] h-[400px]"
-						showDots={true}
-						arrows={false}
-						draggable={false}
-					>
-						{card.gallery.map((image, index) => (
-							<div className="w-[320px] h-[320px]">
+				<div className="w-[350px] h-[400px] relative mr-10 mt-5 z-0">
+					{card.gallery && card.gallery > 0 ? (
+						<Carousel
+							responsive={responsive}
+							srr={false}
+							containerClass="w-[350px] h-[400px]"
+							showDots={true}
+							arrows={false}
+							draggable={false}
+						>
+							{card.gallery.map((image, index) => (
+								<div className="w-[320px] h-[320px]" key={index}>
+									<img
+										alt=""
+										src={image.node.url}
+										className="mr-8 relative rounded-xl object-fill"
+									/>
+								</div>
+							))}
+						</Carousel>
+					) : (
+						<AnimatePresence>
+							<motion.div
+								initial={{ opacity: 0, y: -20, scale: 0.9 }}
+								animate={{ opacity: 1, y: 0, scale: 1 }}
+								key={card.imageUrl}
+								exit={{
+									opacity: 0,
+									y: 20,
+									scale: 1.1,
+									transition: { duration: 0.2 },
+								}}
+								transition={{
+									y: { type: 'spring', stiffness: 100 },
+									opacity: { duration: 0.3 },
+									scale: {
+										type: 'spring',
+										stiffness: 260,
+										damping: 20,
+									},
+								}}
+								className="w-[350px] h-[400px] mt-3 overflow-hidden flex items-start justify-center"
+							>
 								<img
-									src={image.node.url}
-									className="mr-8 relative rounded-xl object-fill"
+									src={card.imageUrl ? card.imageUrl : card.image_url} //TODO: make names match
+									alt="tu vieja"
+									className="relative rounded-xl max-w-full max-h-full w-auto h-auto"
 								/>
-							</div>
-						))}
-					</Carousel>
+							</motion.div>
+						</AnimatePresence>
+					)}
 				</div>
 				<div>
 					<span className="bg-blue-200 py-1 px-3 rounded text-blue-600 text-xs font-semibold absolute top-3 right-3">
@@ -321,13 +339,16 @@ const InstaCard = ({
 							contentEditable={isEditable}
 							dangerouslySetInnerHTML={{ __html: card.post_description }}
 							// Use this to reflect changes in the content state when editing
-							onInput={(e) => setContent(e.currentTarget.innerHTML)}
+							onInput={(e) =>
+								(card.post_description = e.currentTarget.innerHTML)
+							}
 							suppressContentEditableWarning={true}
 						></div>
 					</div>
 					<div className="block mt-4 p-2 border-slate-100 rounded border">
 						<button
 							id="regen-text--button"
+							disabled={disable}
 							className="border-slate-700 border py-1 px-3 hover:text-white hover:bg-slate-700 transition-all duration-300 text-xs font-semibold text-slate-700 rounded inline-block my-2"
 							onClick={() => regenText()}
 						>
@@ -361,8 +382,9 @@ const InstaCard = ({
 				<div>
 					<button
 						className="py-2 px-2 inline-block bg-slate-800 transition-all border border-slate-800 duration-200 hover:bg-violet-600 hover:border-violet-600 text-white font-semibold text-xs rounded"
+						disabled={disable}
 						onClick={() => {
-							regen(), setDisable(true);
+							handleProductRegen(), setDisable(true);
 						}}
 					>
 						Generate New Post
@@ -392,7 +414,7 @@ const InstaCard = ({
 				</div>
 				<div className="ml-auto">
 					<form className="mr-3 inline-block">
-						{publishTime === '' && (
+						{card.timeOfDay === '' && publishTime === '' && (
 							<span className="bg-red-100 py-1 px-2 rounded text-red-500 text-xs inline-block mr-2">
 								Please select the time to publish &rarr;
 							</span>
@@ -400,18 +422,21 @@ const InstaCard = ({
 						<select
 							id="tod"
 							className="py-2 px-2 w-[180px] border border-gray-200 rounded text-left"
+							value={publishTime ? publishTime : 'default'}
 							onChange={(e) => {
-								setPublishTime(e.target.value), setTriggerPostCreation(postID);
+								const newPublishTime = e.target.value;
+								setPublishTime(newPublishTime);
+								updatePost(newPublishTime); // Pass the new publishTime directly
 							}}
 						>
-							<option disabled selected>
+							<option value="default" disabled>
 								Time to publish
 							</option>
-							<option>Morning</option>
-							<option>Midday</option>
-							<option>Afternoon</option>
-							<option>Late Afternoon</option>
-							<option>Night</option>
+							<option value="Morning">Morning</option>
+							<option value="Midday">Midday</option>
+							<option value="Afternoon">Afternoon</option>
+							<option value="Late Afternoon">Late Afternoon</option>
+							<option value="Night">Night</option>
 						</select>
 					</form>
 				</div>
