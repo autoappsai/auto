@@ -11,7 +11,9 @@ const EmptyCard = ({ label, getCard }) => {
 	const [cardError, setCardError] = useState(false);
 
 	const { state } = useGlobalState();
+
 	function getDayDateInEasternTime(label) {
+		console.log(label);
 		const daysOfWeek = [
 			'Sunday',
 			'Monday',
@@ -23,50 +25,35 @@ const EmptyCard = ({ label, getCard }) => {
 		];
 		const timeZone = 'America/New_York'; // Eastern Time zone
 
-		// Get today's date in Eastern Time
-		let today = new Date(
-			new Date().toLocaleString('en-US', { timeZone: timeZone })
-		);
+		// Get the current time in Eastern Time
+		let now = new Date().toLocaleString('en-US', { timeZone: timeZone });
+		let today = new Date(now);
+
+		// Get today's day of the week in Eastern Time
 		const todayDayIndex = today.getDay(); // 0 (Sunday) to 6 (Saturday)
 		const labelDayIndex = daysOfWeek.indexOf(label);
 
+		// Calculate the difference between today and the target day
 		let dayDiff = labelDayIndex - todayDayIndex;
-		if (dayDiff < 0) {
-			// If the day has already passed in the current week, find it in the next week
-			dayDiff += 7;
+
+		// If today is the day and before midnight, we use today's date
+		if (label.toLowerCase() === 'today' || dayDiff === 0) {
+			// No changes needed, today is already set to today
+		} else {
+			// If the day has already passed this week, get the next occurrence
+			if (dayDiff < 0) {
+				dayDiff += 7;
+			}
+			today.setDate(today.getDate() + dayDiff);
 		}
 
-		// Adjust the date to the next occurrence of the specified day
-		today.setDate(today.getDate() + dayDiff);
-		today.setHours(0, 0, 0, 0); // Reset time to 00:00:00.000
+		// Reset the time components to get the start of the day in Eastern Time
+		today.setHours(0, 0, 0, 0);
 
-		// Format the date to 'yyyy-mm-dd 00:00:00.000' in Eastern Time
-		const year = today.getFullYear();
-		let month = today.getMonth() + 1; // getMonth() is zero-based
-		let day = today.getDate();
+		// Format the date as an ISO string in UTC
+		const isoDate = today.toISOString().split('T')[0] + 'T00:00:00.000Z';
 
-		month = month.toString().padStart(2, '0');
-		day = day.toString().padStart(2, '0');
-
-		// Assuming the server or environment where this runs supports Intl
-		const formattedDateString = `${year}-${month}-${day}`;
-		const formattedDate = new Date(formattedDateString).toLocaleString(
-			'en-US',
-			{
-				timeZone: timeZone,
-				year: 'numeric',
-				month: '2-digit',
-				day: '2-digit',
-				hour: '2-digit',
-				minute: '2-digit',
-				second: '2-digit',
-				hour12: false,
-			}
-		);
-
-		// Removing the time part, appending '00:00:00.000' assuming the need is for a consistent format
-		const datePart = formattedDate.split(', ')[0];
-		return `${datePart} 00:00:00.000`;
+		return isoDate;
 	}
 
 	const handleNewCard = async () => {
@@ -89,13 +76,17 @@ const EmptyCard = ({ label, getCard }) => {
 			text: newProd[0].post_description,
 			hashtags: newProd[0].post_hashtags,
 			imageUrl: newProd[0].image_url,
-			postDate: getDayDateInEasternTime(),
+			postDate: getDayDateInEasternTime(label),
 			timeOfDay: '',
 		};
 
 		try {
 			const response = await createPost(postObj, state.jwtToken); // Assuming createPost is an Axios call
-			setgCard(newProd);
+			if (response && response.id) {
+				const updatedProd = { ...newProd[0], id: response.id };
+				// Update the state or perform additional actions with the updatedProd
+				setgCard([updatedProd, ...newProd.slice(1)]);
+			}
 		} catch (error) {
 			setCardError(true);
 			if (error.response) {

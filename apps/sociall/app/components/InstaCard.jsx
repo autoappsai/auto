@@ -122,10 +122,10 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 		isSaving(true);
 		const postObj = {
 			id: card.id,
-			gallery: card.gallery,
+			gallery: JSON.stringify(card.gallery),
 			text: card.post_description,
 			hashtags: card.post_hashtags,
-			imageUrl: card.imageUrl,
+			imageUrl: card.imageUrl ? card.imageUrl : card.image_url,
 			postDate: card.postDate,
 			timeOfDay: publishTime !== '' ? publishTime : '',
 		};
@@ -211,7 +211,7 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 						/>
 					</svg>
 					Post Saved
-					{publishTime === '' && (
+					{publishTime && (
 						<span className="text-xs">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
@@ -414,7 +414,7 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 				</div>
 				<div className="ml-auto">
 					<form className="mr-3 inline-block">
-						{card.timeOfDay === '' && publishTime === '' && (
+						{!publishTime && (
 							<span className="bg-red-100 py-1 px-2 rounded text-red-500 text-xs inline-block mr-2">
 								Please select the time to publish &rarr;
 							</span>
