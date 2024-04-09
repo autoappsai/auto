@@ -1,6 +1,7 @@
 'use client';
 import { motion, useAnimation } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 export default function Home() {
@@ -182,7 +183,11 @@ export default function Home() {
 					<div className="text-center">
 						<p className="text-[#C4CDD] mt-8">
 							©2024 - Auto, LLC /{' '}
-							<span className="underline underline-offset-4">Support</span>
+							<Link href="/privacy-policy">
+								<span className="underline underline-offset-4">
+									Privacy Policy
+								</span>
+							</Link>
 						</p>
 					</div>
 				</div>
