@@ -1,8 +1,8 @@
-"use client";
-import { motion, useAnimation } from "framer-motion";
-import Image from "next/image";
-import Head from "next/head";
-import { useEffect, useState } from "react";
+'use client';
+import { motion, useAnimation } from 'framer-motion';
+import Image from 'next/image';
+import Head from 'next/head';
+import { useEffect, useState } from 'react';
 export default function Home() {
 	const scrollVariants = {
 		animate: {
@@ -10,9 +10,9 @@ export default function Home() {
 			transition: {
 				x: {
 					repeat: Infinity,
-					repeatType: "loop",
+					repeatType: 'loop',
 					duration: 10, // Adjust duration for speed control
-					ease: "linear",
+					ease: 'linear',
 				},
 			},
 		},
@@ -26,7 +26,7 @@ export default function Home() {
 			if (window.scrollY > window.innerHeight - 100) {
 				if (!hasScrolled) {
 					controls.start({
-						backgroundColor: "#FFFEE7",
+						backgroundColor: '#FFFEE7',
 						transition: { duration: 1 },
 					});
 					setHasScrolled(true);
@@ -34,7 +34,7 @@ export default function Home() {
 			} else {
 				if (hasScrolled) {
 					controls.start({
-						backgroundColor: "#000",
+						backgroundColor: '#000',
 						transition: { duration: 1 },
 					});
 					setHasScrolled(false);
@@ -42,21 +42,21 @@ export default function Home() {
 			}
 		};
 
-		window.addEventListener("scroll", onScroll);
-		return () => window.removeEventListener("scroll", onScroll);
+		window.addEventListener('scroll', onScroll);
+		return () => window.removeEventListener('scroll', onScroll);
 	}, [controls, hasScrolled]);
 
 	useEffect(() => {
-		document.documentElement.classList.add("snap-y", "snap-mandatory");
+		document.documentElement.classList.add('snap-y', 'snap-mandatory');
 		return () => {
-			document.documentElement.classList.remove("snap-y", "snap-mandatory");
+			document.documentElement.classList.remove('snap-y', 'snap-mandatory');
 		};
 	}, []);
 
 	return (
 		<motion.div
 			animate={controls}
-			style={{ height: "200vh", backgroundColor: "#000" }} // Set the initial color
+			style={{ height: '200vh', backgroundColor: '#000' }} // Set the initial color
 			className="relative"
 		>
 			<Head>
@@ -66,7 +66,7 @@ export default function Home() {
 				<motion.div
 					variants={scrollVariants}
 					animate="animate"
-					style={{ display: "inline-block" }}
+					style={{ display: 'inline-block' }}
 				>
 					<span className="lg:text-[25rem] text-[10rem] font-bold opacity-10">
 						Auto
@@ -75,11 +75,11 @@ export default function Home() {
 			</div>
 			<div className="snap-mandatory snap-y z-50">
 				<header className="flex justify-center w-full flex-wrap h-screen items-center px-20 snap-start relative">
+					<div className="ml-10 absolute top-12 left-10">
+						<Image src="/logo.png" width="132" height="41" />
+					</div>
 					<div className="z-50">
 						<div className="lg:text-[10rem] animate-text  text-[5rem] font-extrabold lg:leading-[8rem]  leading-[4rem] bg-clip-text pb-10 text-transparent bg-gradient-to-r from-[#EE7DFF] via-[#FFFEE7] to-[#47C9FF]">
-							<div className="block w-full ml-10 mb-4">
-								<Image src="/robot.png" width="40" height="52" />
-							</div>
 							<span>Artificially</span>
 							<br />
 							<span>Intelligent</span>
@@ -181,7 +181,7 @@ export default function Home() {
 				<div className="flex justify-center flex-wrap h-screen items-center snap-start">
 					<div className="text-center">
 						<p className="text-[#C4CDD] mt-8">
-							©2024 - Auto, LLC /{" "}
+							©2024 - Auto, LLC /{' '}
 							<span className="underline underline-offset-4">Support</span>
 						</p>
 					</div>
