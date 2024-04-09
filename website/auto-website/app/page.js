@@ -182,7 +182,7 @@ export default function Home() {
 				<div className="flex justify-center flex-wrap h-screen items-center snap-start">
 					<div className="text-center">
 						<p className="text-[#C4CDD] mt-8">
-							©2024 - Auto, LLC /{' '}
+							©2024 - Auto |{' '}
 							<Link href="/privacy-policy">
 								<span className="underline underline-offset-4">
 									Privacy Policy
