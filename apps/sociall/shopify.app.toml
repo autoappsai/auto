@@ -2,7 +2,7 @@
 
 client_id = "6c1e2bab4aedc9e2927dbc4852b0cc46"
 name = "Sociall-Dev"
-application_url = "https://gbp-periods-compiled-yea.trycloudflare.com"
+application_url = "https://sociall-heroku-cfdab19fb85b.herokuapp.com"
 embedded = true
 
 [build]
@@ -16,9 +16,9 @@ use_legacy_install_flow = true
 
 [auth]
 redirect_urls = [
-  "https://gbp-periods-compiled-yea.trycloudflare.com/auth/callback",
-  "https://gbp-periods-compiled-yea.trycloudflare.com/auth/shopify/callback",
-  "https://gbp-periods-compiled-yea.trycloudflare.com/api/auth/callback"
+  "https://sociall-heroku-cfdab19fb85b.herokuapp.com/auth/callback",
+  "https://sociall-heroku-cfdab19fb85b.herokuapp.com/auth/shopify/callback",
+  "https://sociall-heroku-cfdab19fb85b.herokuapp.com/api/auth/callback"
 ]
 
 [webhooks]
