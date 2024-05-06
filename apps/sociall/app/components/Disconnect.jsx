@@ -1,8 +1,13 @@
 import { initTokenFlow } from '../dao';
+import { useNavigate } from '@remix-run/react';
+
 const Disconnect = ({ token, dispatch }) => {
+	const navigate = useNavigate();
+
 	async function logout(token) {
-		initTokenFlow(token);
+		await initTokenFlow(token);
 		dispatch({ type: 'SET_FACEBOOK_TOKEN_EXISTS', payload: false });
+		navigate('/app');
 	}
 	return (
 		<button
