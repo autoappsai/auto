@@ -22,9 +22,6 @@ export default function Settings() {
 								<span className="text-sm block mb-1 font-semibold">
 									Instagram Account
 								</span>
-								<span className="bg-lime-200 text-lime-700 border border-lime-300 font-medium rounded py-1 px-2 text-xs">
-									Active
-								</span>
 							</div>
 						</div>
 
