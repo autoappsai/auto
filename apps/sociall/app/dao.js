@@ -105,6 +105,16 @@ export async function login(params) {
 	return response.data;
 }
 
+export async function me(jwtToken) {
+	setJwtToken(jwtToken);
+	const response = await axios.post(
+		SOCIALL_API_SERVER_URL + '/me',
+		null,
+		authHeader
+	);
+	return response.data;
+}
+
 // LOCAL ----
 
 export async function getSession(shop) {

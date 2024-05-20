@@ -23,14 +23,18 @@ export async function instagramPublish(imageUrl, caption, accessToken) {
 	return publicationId ?? null;
 }
 
-export async function getInstagramBusinessAccount(accessToken) {
+export async function me(accessToken) {
 	const { data } = await axios.get(FACEBOOK_API_URL + '/me/accounts', {
 		params: {
 			fields: 'id,name,access_token,instagram_business_account',
 			access_token: accessToken,
 		},
 	});
-	return data.data[0].instagram_business_account.id ?? null;
+	return data.data[0] ?? null;
+}
+
+export async function getInstagramBusinessAccount(accessToken) {
+	return me(accessToken).instagram_business_account.id ?? null;
 }
 
 export async function createMediaContainer(

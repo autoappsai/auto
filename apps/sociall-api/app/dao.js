@@ -344,3 +344,18 @@ export async function deletePost(id) {
 	});
 	return post;
 }
+
+export async function getInstallations_SocialNetworks(shop, socialNetworkName) {
+	const installations_SocialNetwork =
+		await prisma.installations_SocialNetworks.findFirst({
+			where: {
+				installations: {
+					shop: shop,
+				},
+				socialNetworks: {
+					name: socialNetworkName,
+				},
+			},
+		});
+	return installations_SocialNetwork;
+}
