@@ -7,6 +7,6 @@ export const CORS_HTTP_PARAMS = {
 	},
 };
 
-export const FACEBOOK_API_URL = 'https://graph.facebook.com/v19.0';
+export const FACEBOOK_API_URL = 'https://graph.facebook.com/v16.0';
 export const FACEBOOK_CLIENT_ID = '2028567190857635';
 export const FACEBOOK_CLIENT_SECRET = '470b739fbb9fa358d3adda899fe82514';

@@ -34,7 +34,8 @@ export async function me(accessToken) {
 }
 
 export async function getInstagramBusinessAccount(accessToken) {
-	return me(accessToken).instagram_business_account.id ?? null;
+	const data = await me(accessToken);
+	return data.instagram_business_account.id ?? null;
 }
 
 export async function createMediaContainer(
