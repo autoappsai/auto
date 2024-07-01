@@ -26,7 +26,7 @@ export default function Settings() {
 				<div className="content container mx-auto px-12 pt-5 pb-20 mb-10">
 					<h1 className="text-xl block">Sociall Connections</h1>
 					<hr className="my-6" />
-					{state.facebookTokenExists && (
+					{state.facebookTokenExists ? (
 						<div className="p-4 border border-gray-100 shadow-md shadow-purple-50 rounded flex items-center justify-between">
 							<div className="flex items-center">
 								<div className="inline-block mr-3">
@@ -47,6 +47,8 @@ export default function Settings() {
 								<Disconnect token={state.jwtToken} dispatch={dispatch} />
 							</div>
 						</div>
+					) : (
+						<p>No connections</p>
 					)}
 				</div>
 			</div>
