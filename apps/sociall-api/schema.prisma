@@ -7,7 +7,6 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  //url      = "mysql://root:CordobaArgentina@35.238.75.192:3306/sociall"
   url      = "mysql://doadmin:AVNS_xX-pTzyN3-lssi1R7FB@auto-sociall-do-user-17372159-0.k.db.ondigitalocean.com:25060/defaultdb?ssl-mode=REQUIRED"
 }
 
