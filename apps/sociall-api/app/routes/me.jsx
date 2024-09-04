@@ -1,5 +1,4 @@
 import { json } from '@remix-run/node';
-import { getPosts } from '../dao';
 import { validateRequest } from '../jwt';
 import { CORS_HTTP_PARAMS } from '../constants';
 import { getInstallations_SocialNetworks } from '../dao';
@@ -14,21 +13,25 @@ export const loader = async ({ request }) => {
 };
 
 export const action = async ({ request }) => {
-	switch (request.method) {
-		case 'POST': {
-			// Protect Endpoint.
-			const username = validateRequest(request, process.env.JWT_SECRET_KEY);
-			if (username === null) {
-				return json({ error: 'Missing or invalid token' }, { status: 401 });
-			}
+  switch (request.method) {
+    case 'POST': {
+      // Protect Endpoint.
+      const username = await validateRequest(request, process.env.JWT_SECRET_KEY);
+      if (username === null) {
+        return json({ error: 'Missing or invalid token' }, { status: 401 });
+      }
 
-			const { token } = await getInstallations_SocialNetworks(
-				username,
-				'Instagram'
-			);
+      const { token } = await getInstallations_SocialNetworks(
+        username,
+        'Instagram'
+      );
 
-			const meFb = await me(token);
-			return json(meFb, CORS_HTTP_PARAMS);
-		}
-	}
+      const meFb = await me(token);
+
+      return json(meFb, CORS_HTTP_PARAMS);
+    }
+    default: {
+      return json({ error: 'Method not allowed' }, { status: 405 });
+    }
+  }
 };

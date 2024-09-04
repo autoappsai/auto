@@ -6,11 +6,9 @@ function toMySQLFormat(date) {
 }
 
 export async function initTokenFlow(shop) {
-	await prisma.$queryRaw`
-    update sociall.Installations_SocialNetworks isn, sociall.Installations i
-    set isn.token = "Pending", isn.userId = "Pending", isn.createdAt = ${toMySQLFormat(
-			new Date()
-		)}
+  await prisma.$queryRaw`
+    update defaultdb.Installations_SocialNetworks isn, defaultdb.Installations i
+    set isn.token = 'Pending', isn.userId = 'Pending', isn.createdAt = ${toMySQLFormat(new Date())}
     where isn.installations_id = i.id
     and i.shop = ${shop}`;
 }
@@ -297,13 +295,22 @@ export async function appInit(installationParam, socialNetworkName) {
 }
 
 export async function getInstallation(shop) {
-	const installation = await prisma.installations.findUnique({
-		where: {
-			shop: shop,
-		},
-	});
+  try {
+    const installation = await prisma.installations.findUnique({
+      where: {
+        shop: shop,
+      },
+    });
 
-	return installation;
+    if (!installation) {
+      return null;
+    }
+
+    return installation;
+  } catch (error) {
+    console.error("Database error:", error);
+    return null;
+  }
 }
 
 export async function upsertPost(aPost, shop, socialNetworkName) {
