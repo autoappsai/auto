@@ -118,7 +118,7 @@ export default function Index() {
 
 	async function authFB() {
 		// Facebook authentication popup
-		initTokenFlow(state.jwtToken);
+		await initTokenFlow(state.jwtToken);
 
 		var width = 600;
 		var height = 400;

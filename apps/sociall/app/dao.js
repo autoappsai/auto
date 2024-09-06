@@ -1,3 +1,4 @@
+// Dao.js refactor with headerBuilder
 import axios from 'axios';
 import { SOCIALL_API_SERVER_URL } from './constants';
 import prisma from './db.server';
@@ -41,18 +42,17 @@ export async function getStoreProducts(admin) {
 
 // SOCIALL API ----
 
-let authHeader;
-
-export async function setJwtToken(token) {
-	authHeader = {
-		headers: {
-			Authorization: 'Bearer ' + token,
-		},
-	};
+function headerBuilder(token, id = undefined) {
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    ...(id !== undefined && { data: { id } }),
+  };
 }
 
 export async function initTokenFlow(jwtToken) {
-	setJwtToken(jwtToken);
+	const authHeader = headerBuilder(jwtToken)
 	const response = await axios.post(
 		SOCIALL_API_SERVER_URL + '/init-token-flow',
 		null,
@@ -62,7 +62,7 @@ export async function initTokenFlow(jwtToken) {
 }
 
 export async function weekPosts(jwtToken) {
-	setJwtToken(jwtToken);
+	const authHeader = headerBuilder(jwtToken)
 	const response = await axios.post(
 		SOCIALL_API_SERVER_URL + '/week-posts',
 		null,
@@ -72,7 +72,7 @@ export async function weekPosts(jwtToken) {
 }
 
 export async function upsertPost(post, jwtToken) {
-	setJwtToken(jwtToken);
+	const authHeader = headerBuilder(jwtToken)
 	const response = await axios.post(
 		SOCIALL_API_SERVER_URL + '/post',
 		post,
@@ -82,13 +82,8 @@ export async function upsertPost(post, jwtToken) {
 }
 
 export async function deletePost(id, jwtToken) {
-	setJwtToken(jwtToken);
-	const response = await axios.delete(SOCIALL_API_SERVER_URL + '/post', {
-		headers: {
-			Authorization: 'Bearer ' + jwtToken,
-		},
-		data: { id: id },
-	});
+	const authHeader = headerBuilder(jwtToken, id)
+	const response = await axios.delete(SOCIALL_API_SERVER_URL + '/post', authHeader);
 	return response.data;
 }
 
@@ -106,7 +101,7 @@ export async function login(params) {
 }
 
 export async function me(jwtToken) {
-	setJwtToken(jwtToken);
+	const authHeader = headerBuilder(jwtToken)
 	const response = await axios.post(
 		SOCIALL_API_SERVER_URL + '/me',
 		null,
