@@ -11,7 +11,10 @@ sudo vi ~/.docker/config.json
 Replace “credsStore” with “credStore”
 :wq
 
-If unauthorize run heroku container:login
+If unauthorize run
+docker login
+heroku auth:login
+heroku container:login
 
 Prod URL: https://admin.shopify.com/store/sociall-store/apps/sociall/app
 
