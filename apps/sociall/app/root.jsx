@@ -35,16 +35,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 				/>
 			</head>
 			<body>
-				<Outlet />
-				<LiveReload />
-				<Scripts />
-				<ScrollRestoration />
 				<script
 					dangerouslySetInnerHTML={{
 						__html: `<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-M572N9P2"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>`,
 					}}
 				/>
+				<Outlet />
+				<LiveReload />
+				<Scripts />
+				<ScrollRestoration />
 			</body>
 		</html>
 	);
