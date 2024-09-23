@@ -2,7 +2,8 @@
 
 client_id = "6c1e2bab4aedc9e2927dbc4852b0cc46"
 name = "Sociall-Dev"
-application_url = "https://sociall-heroku-cfdab19fb85b.herokuapp.com"
+handle = "sociall-dev"
+application_url = "https://pentium-claims-dsc-complimentary.trycloudflare.com"
 embedded = true
 
 [build]
@@ -16,9 +17,9 @@ use_legacy_install_flow = true
 
 [auth]
 redirect_urls = [
-  "https://sociall-heroku-cfdab19fb85b.herokuapp.com/auth/callback",
-  "https://sociall-heroku-cfdab19fb85b.herokuapp.com/auth/shopify/callback",
-  "https://sociall-heroku-cfdab19fb85b.herokuapp.com/api/auth/callback"
+  "https://pentium-claims-dsc-complimentary.trycloudflare.com/auth/callback",
+  "https://pentium-claims-dsc-complimentary.trycloudflare.com/auth/shopify/callback",
+  "https://pentium-claims-dsc-complimentary.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

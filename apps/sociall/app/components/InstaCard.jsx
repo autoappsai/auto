@@ -1,12 +1,13 @@
 import { Spinner } from '@shopify/polaris';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import RobotSpinner from './Spinner';
 import Carousel from 'react-multi-carousel';
 import Saver from './Saver';
 import { upsertPost, deletePost } from '../dao';
 import { AI_API_SERVER_URL } from '../constants';
 import { useGlobalState } from '../context';
+import { ClockIcon } from '@heroicons/react/24/outline';
 
 const InstaCard = ({ card, label, regen, setgCard }) => {
 	// const [content, setContent] = useState(card.post_description);
@@ -476,11 +477,15 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 				</div>
 				<div className="ml-auto w-full lg:w-auto mt-4 lg:mt-0">
 					<form className="mr-3 inline-block w-full">
-						{!publishTime && (
+						{!publishTime ? (
 							<span className="bg-red-100 py-1 px-2 rounded text-red-500 text-xs inline-block mr-2">
 								Please select the time to publish &rarr;
 							</span>
-						)}
+						): 
+							<span className='inline-block mr-3'>
+								<ClockIcon className='w-4 h-4 text-slate-600 inline-block'/> Based on US Eastern Time
+							</span>
+						}
 						<select
 							id="tod"
 							className="py-2 px-2 lg:w-[180px] w-full border border-gray-200 rounded text-left"

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { Page } from '@shopify/polaris';
+import { Link } from "@remix-run/react";
 import EmptyCard from '../components/EmptyCard';
 import { authenticate } from '../shopify.server';
 import { json } from '@remix-run/node';
@@ -9,6 +10,7 @@ import { useGlobalState } from '../context';
 import { initTokenFlow, getStoreProducts, weekPosts } from '../dao';
 import { FACEBOOK_DIALOG_URL, AI_API_SERVER_URL } from '../constants';
 import InstaCard from '../components/InstaCard';
+import { LightBulbIcon } from '@heroicons/react/24/outline';
 
 export const loader = async ({ request }) => {
 	// load initial required stuff
@@ -139,10 +141,11 @@ export default function Index() {
 				var checkClosed = setInterval(function () {
 					if (fbWindow.closed) {
 						clearInterval(checkClosed);
+						// Reload the page
+						window.location.reload(); // Correct method to reload the page
 						fbWindow = null;
-						//window.location.reload();1
-						//navigate(`/app?${loaderData.queryParams}`);
-						dispatch({ type: 'SET_FACEBOOK_TOKEN_EXISTS', payload: true });
+						// Dispatch action or handle other logic if needed
+						// dispatch({ type: 'SET_FACEBOOK_TOKEN_EXISTS', payload: true });
 					}
 				}, 500);
 			}
@@ -223,7 +226,7 @@ export default function Index() {
 										<img src="/img/connection_arrows.png" width="41" alt="" />
 									</div>
 									<div>
-										<img src="/img/auto_connection.png" width="81" alt="" />
+										<img src="/img/sociall_icon_2.png" width="81" alt="" />
 									</div>
 								</div>
 								<button
@@ -233,6 +236,27 @@ export default function Index() {
 								>
 									Connect Now
 								</button>
+								<div className="block w-full mt-10 p-4 border border-slate-300 rounded">
+									<div className="flex items-center justify-center -mt-1 mr-2">
+										<div>
+											<LightBulbIcon className="inline-block w-4 h-4 mr-1" />
+										</div>
+										<div>
+											<strong>Tip</strong>
+										</div>
+									</div>
+									Make sure you have an active Facebook account and it's your
+									Instagram's connected account.
+									<br />
+									Your Instagram must be set as a{' '}
+									<strong>business account</strong>.
+								</div>
+								<div className='mt-4 block'>
+									For more information and help, please{' '}
+									<Link to="/app/help" className="text-slate-800 underline underline-offset-4">
+										Click Here
+									</Link>
+								</div>
 							</div>
 						</div>
 					)}
