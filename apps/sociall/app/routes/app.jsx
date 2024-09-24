@@ -18,6 +18,14 @@ export const loader = async ({ request }) => {
 
 	const session = await getSession(process.env.SHOP);
 
+	console.log('Init Info :>> ', {
+		shop: process.env.SHOP,
+		accessToken: session.accessToken,
+		shopifyAppUrl: process.env.SHOPIFY_APP_URL,
+		shopifyApiKey: process.env.SHOPIFY_API_KEY,
+		shopifyApiSecret: process.env.SHOPIFY_API_SECRET,
+	});
+
 	const initResponse = await appInit({
 		shop: process.env.SHOP,
 		accessToken: session.accessToken,

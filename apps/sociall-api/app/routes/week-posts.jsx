@@ -14,10 +14,16 @@ export const loader = async ({ request }) => {
 export const action = async ({ request }) => {
 	switch (request.method) {
 		case 'POST': {
-			const username = validateRequest(request, process.env.JWT_SECRET_KEY);
+			const username = await validateRequest(
+				request,
+				process.env.JWT_SECRET_KEY
+			);
 			if (username === null) {
 				return json({ error: 'Missing or invalid token' }, { status: 401 });
 			}
+
+			console.log('username :>> ', username);
+
 			const post = await getWeekPosts(username, 'Instagram'); // TODO: Replace hardcode Instagram id.
 			return json(post, CORS_HTTP_PARAMS);
 		}
