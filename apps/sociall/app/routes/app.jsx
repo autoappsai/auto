@@ -14,12 +14,11 @@ export const loader = async ({ request }) => {
 	const { searchParams } = new URL(request.url);
 	const shop = searchParams.get('shop');
 
-	if (process.env.SHOP == null) process.env.SHOP = shop;
-
-	const session = await getSession(process.env.SHOP);
+	const session = await getSession(shop);
+	console.log('session :>> ', session);
 
 	console.log('Init Info :>> ', {
-		shop: process.env.SHOP,
+		shop,
 		accessToken: session.accessToken,
 		shopifyAppUrl: process.env.SHOPIFY_APP_URL,
 		shopifyApiKey: process.env.SHOPIFY_API_KEY,
@@ -27,7 +26,7 @@ export const loader = async ({ request }) => {
 	});
 
 	const initResponse = await appInit({
-		shop: process.env.SHOP,
+		shop,
 		accessToken: session.accessToken,
 		shopifyAppUrl: process.env.SHOPIFY_APP_URL,
 		shopifyApiKey: process.env.SHOPIFY_API_KEY,
@@ -35,7 +34,7 @@ export const loader = async ({ request }) => {
 	});
 
 	const { token } = await login({
-		username: process.env.SHOP,
+		username: shop,
 		password: session.accessToken,
 	});
 
@@ -72,11 +71,8 @@ export default function App() {
 			<GlobalStateProvider>
 				<InitializeStore />
 				<ui-nav-menu>
-					<Link to="/app" rel="home">
-						Home
-					</Link>
-					<Link to={'/app/settings'}>Settings</Link>
-					<Link to={'/app/help'}>Help</Link>
+					<a href={'/app/settings'}>Settings</a>
+					<a href={'/app/help'}>Help</a>
 				</ui-nav-menu>
 				<Outlet />
 			</GlobalStateProvider>

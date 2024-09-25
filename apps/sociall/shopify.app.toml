@@ -1,6 +1,6 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "6c1e2bab4aedc9e2927dbc4852b0cc46"
+client_id = "202db42c098da04ff196f0aa16f74cf4"
 name = "Sociall-Dev"
 application_url = "https://sociall-heroku-cfdab19fb85b.herokuapp.com"
 embedded = true
