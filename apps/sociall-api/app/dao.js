@@ -6,11 +6,20 @@ function toMySQLFormat(date) {
 }
 
 export async function initTokenFlow(shop) {
-  await prisma.$queryRaw`
+	await prisma.$queryRaw`
     update defaultdb.Installations_SocialNetworks isn, defaultdb.Installations i
-    set isn.token = 'Pending', isn.userId = 'Pending', isn.createdAt = ${toMySQLFormat(new Date())}
+    set isn.token = 'Pending', isn.userId = 'Pending', isn.createdAt = ${toMySQLFormat(
+			new Date()
+		)}
     where isn.installations_id = i.id
     and i.shop = ${shop}`;
+
+	await prisma.$queryRaw`
+	DELETE p
+	FROM defaultdb.Post p
+	JOIN defaultdb.Installations_SocialNetworks isn ON p.installations_SocialNetworks_id = isn.id
+	JOIN defaultdb.Installations i ON isn.installations_id = i.id
+	WHERE i.shop = ${shop}`;
 }
 
 export async function saveLongLivedTokenToLatest(longLivedToken) {
@@ -295,22 +304,22 @@ export async function appInit(installationParam, socialNetworkName) {
 }
 
 export async function getInstallation(shop) {
-  try {
-    const installation = await prisma.installations.findUnique({
-      where: {
-        shop: shop,
-      },
-    });
+	try {
+		const installation = await prisma.installations.findUnique({
+			where: {
+				shop: shop,
+			},
+		});
 
-    if (!installation) {
-      return null;
-    }
+		if (!installation) {
+			return null;
+		}
 
-    return installation;
-  } catch (error) {
-    console.error("Database error:", error);
-    return null;
-  }
+		return installation;
+	} catch (error) {
+		console.error('Database error:', error);
+		return null;
+	}
 }
 
 export async function upsertPost(aPost, shop, socialNetworkName) {
