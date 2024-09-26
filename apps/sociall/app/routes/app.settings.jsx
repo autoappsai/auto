@@ -45,7 +45,10 @@ export default function Settings() {
 							</div>
 						</div>
 					) : (
-						<p>No connections</p>
+						<p>
+							No connections. Please go to Home to connect your Instagam
+							account.
+						</p>
 					)}
 				</div>
 			</div>

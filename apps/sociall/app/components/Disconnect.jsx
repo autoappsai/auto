@@ -7,7 +7,7 @@ const Disconnect = ({ token, dispatch }) => {
 	async function logout(token) {
 		await initTokenFlow(token);
 		dispatch({ type: 'SET_FACEBOOK_TOKEN_EXISTS', payload: false });
-		navigate('/app');
+		//navigate('/app');
 	}
 	return (
 		<button
