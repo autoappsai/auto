@@ -13,10 +13,12 @@ export const loader = async ({ request }) => {
 
 export const action = async ({ request }) => {
 	// Protect Endpoint.
-	const username = validateRequest(request, process.env.JWT_SECRET_KEY);
+	const username = await validateRequest(request, process.env.JWT_SECRET_KEY);
 	if (username === null) {
 		return json({ error: 'Missing or invalid token' }, { status: 401 });
 	}
+
+	console.log('POST USERNAME :>> ', username);
 
 	switch (request.method) {
 		case 'POST': {
