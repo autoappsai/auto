@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { Page } from '@shopify/polaris';
-import { Link } from "@remix-run/react";
 import EmptyCard from '../components/EmptyCard';
 import { authenticate } from '../shopify.server';
 import { json } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import { useLoaderData, Link } from '@remix-run/react';
 import { useGlobalState } from '../context';
 import { initTokenFlow, getStoreProducts, weekPosts } from '../dao';
 import { FACEBOOK_DIALOG_URL, AI_API_SERVER_URL } from '../constants';
@@ -16,39 +15,29 @@ export const loader = async ({ request }) => {
 	// load initial required stuff
 	const { admin } = await authenticate.admin(request);
 	const products = await getStoreProducts(admin);
-	const url = new URL(request.url);
-	const queryParams = url.searchParams.toString();
-	const wCards = await weekPosts(process.env.JWT_TOKEN);
 	return json({
 		products: products,
-		queryParams: queryParams,
-		jwtTokenEnv: process.env.JWT_TOKEN,
-		wCards: wCards,
 	});
 };
 
 export default function Index() {
-	const { state, dispatch } = useGlobalState();
+	const { state } = useGlobalState();
 
-	const loaderData = useLoaderData();
 	// define the posts loaded from the db
 	const [dbPosts, setDbPosts] = useState([]);
 	const [gcard, setgCard] = useState([]);
-	const [saving, isSaving] = useState(false);
-
-	const weekdays = 6;
 
 	const { products } = useLoaderData();
 
 	useEffect(() => {
 		// call database to get the stored posts
 		async function getWeekPosts() {
-			const posts = await weekPosts(loaderData.jwtTokenEnv); // TODO: the idea was to use state.jwtToken for the FE, but is not there at init.
+			const posts = await weekPosts(state.jwtToken); // TODO: the idea was to use state.jwtToken for the FE, but is not there at init.
 			setDbPosts(posts);
 			console.log(posts);
 		}
 		getWeekPosts();
-	}, []);
+	}, [state.jwtToken]);
 
 	// Get today's date
 	const today = new Date();
@@ -56,6 +45,7 @@ export default function Index() {
 	// initialize the labels
 	const dayLabels = [];
 
+	const weekdays = 6;
 	// fill the array with the labels
 	for (let i = 0; i <= weekdays; i++) {
 		const nextDay = new Date(today);
@@ -251,9 +241,12 @@ export default function Index() {
 									Your Instagram must be set as a{' '}
 									<strong>business account</strong>.
 								</div>
-								<div className='mt-4 block'>
+								<div className="mt-4 block">
 									For more information and help, please{' '}
-									<Link to="/app/help" className="text-slate-800 underline underline-offset-4">
+									<Link
+										to="/app/help"
+										className="text-slate-800 underline underline-offset-4"
+									>
 										Click Here
 									</Link>
 								</div>

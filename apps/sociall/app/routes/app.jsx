@@ -38,8 +38,6 @@ export const loader = async ({ request }) => {
 		password: session.accessToken,
 	});
 
-	process.env.JWT_TOKEN = token;
-
 	return json({
 		apiKey: process.env.SHOPIFY_API_KEY || '',
 		jwtToken: token,
