@@ -1,19 +1,20 @@
 import { Spinner } from '@shopify/polaris';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import RobotSpinner from './Spinner';
 import Carousel from 'react-multi-carousel';
 import Saver from './Saver';
 import { upsertPost, deletePost } from '../dao';
 import { AI_API_SERVER_URL } from '../constants';
 import { useGlobalState } from '../context';
-import { ClockIcon } from '@heroicons/react/24/outline';
+import { CheckIcon, ClockIcon, SparklesIcon } from '@heroicons/react/24/outline';
 
 const InstaCard = ({ card, label, regen, setgCard }) => {
 	// const [content, setContent] = useState(card.post_description);
 	const [isEditable, setIsEditable] = useState(false);
 	const [saving, isSaving] = useState(false);
 	const [cardError, setCardError] = useState(false); //TODO card regen error
+	const [availableTimes, setAvailableTimes] = useState([]);
 	const [disable, setDisable] = useState(false);
 	const [updatingText, setUpdatingText] = useState(false); //status
 	const [postID, setPostID] = useState(card.id); //keep the initial id in case of the regerate post to insted of deleting and creating we directly update with the same id
@@ -187,7 +188,33 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 		}
 	}
 
-	return (
+	useEffect(() => {
+		const publishTimes = [
+			{ label: 'Morning', time: '08:00' }, // 8:00 AM ET
+			{ label: 'Midday', time: '12:00' }, // 12:00 PM ET
+			{ label: 'Afternoon', time: '14:00' }, // 2:00 PM ET
+			{ label: 'Late Afternoon', time: '17:00' }, // 5:00 PM ET
+			{ label: 'Night', time: '21:00' }, // 9:00 PM ET
+		];
+
+		// Get the current time in Eastern Time (ET) using the Intl.DateTimeFormat API
+		const currentTime = new Intl.DateTimeFormat('en-US', {
+			timeZone: 'America/New_York',
+			hour12: false,
+			hour: '2-digit',
+			minute: '2-digit',
+		}).format(new Date());
+
+		// Filter out times that are already passed in ET
+		const filteredTimes = publishTimes.filter(
+			(time) => time.time > currentTime
+		);
+
+		// Set available times for the dropdown
+		setAvailableTimes(filteredTimes);
+	}, []);
+
+	return !card.sent ? (
 		<motion.div
 			id={postID}
 			initial={{ opacity: 0, y: -20, scale: 0.9 }}
@@ -481,15 +508,16 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 							<span className="bg-red-100 py-1 px-2 rounded text-red-500 text-xs inline-block mr-2">
 								Please select the time to publish &rarr;
 							</span>
-						): 
-							<span className='inline-block mr-3'>
-								<ClockIcon className='w-4 h-4 text-slate-600 inline-block'/> Based on US Eastern Time
+						) : (
+							<span className="inline-block mr-3">
+								<ClockIcon className="w-4 h-4 text-slate-600 inline-block" />{' '}
+								Based on US Eastern Time
 							</span>
-						}
+						)}
 						<select
 							id="tod"
 							className="py-2 px-2 lg:w-[180px] w-full border border-gray-200 rounded text-left"
-							value={publishTime ? publishTime : 'default'}
+							value={publishTime || 'default'}
 							onChange={(e) => {
 								const newPublishTime = e.target.value;
 								setPublishTime(newPublishTime);
@@ -499,13 +527,80 @@ const InstaCard = ({ card, label, regen, setgCard }) => {
 							<option value="default" disabled>
 								Time to publish
 							</option>
-							<option value="Morning">Morning</option>
-							<option value="Midday">Midday</option>
-							<option value="Afternoon">Afternoon</option>
-							<option value="Late Afternoon">Late Afternoon</option>
-							<option value="Night">Night</option>
+							{availableTimes.map((time) => (
+								<option key={time.label} value={time.label}>
+									{time.label}
+								</option>
+							))}
 						</select>
 					</form>
+				</div>
+			</div>
+		</motion.div>
+	) : (
+		<motion.div
+			id={postID}
+			initial={{ opacity: 0, y: -20, scale: 0.9 }}
+			animate={{ opacity: 1, y: 0, scale: 1 }}
+			exit={{ opacity: 0, y: 20, scale: 1.1, transition: { duration: 0.2 } }}
+			transition={{
+				y: { type: 'spring', stiffness: 100 },
+				opacity: { duration: 0.2 },
+				scale: {
+					type: 'spring',
+					stiffness: 260,
+					damping: 20,
+				},
+			}}
+			className="card col-span-2 mb-10 lg:mb-0 p-4 rounded-lg border border-slate-100 bg-white shadow relative"
+		>
+			<div className="grid grid-cols-12">
+				<div className="col-span-6">
+					<AnimatePresence>
+						<motion.div
+							initial={{ opacity: 0, y: -20, scale: 0.9 }}
+							animate={{ opacity: 1, y: 0, scale: 1 }}
+							key={card.imageUrl}
+							exit={{
+								opacity: 0,
+								y: 20,
+								scale: 1.1,
+								transition: { duration: 0.2 },
+							}}
+							transition={{
+								y: { type: 'spring', stiffness: 100 },
+								opacity: { duration: 0.3 },
+								scale: {
+									type: 'spring',
+									stiffness: 260,
+									damping: 20,
+								},
+							}}
+							className="lg:w-[350px] w-full lg:h-[400px] h-[350px] mt-3 overflow-hidden flex items-start justify-center"
+						>
+							<img
+								src={card.imageUrl ? card.imageUrl : card.image_url} //TODO: make names match
+								alt="tu vieja"
+								className="relative rounded-xl max-w-full max-h-full w-auto h-auto"
+							/>
+						</motion.div>
+					</AnimatePresence>
+				</div>
+				<div className="col-span-6">
+					<div
+						className={`content mt-6 max-w-[100%] transition-all duration-200 ${isEditable && 'p-2 border border-slate-300 rounded outline-none'} ${updatingText && 'opacity-20 saturate-50'}`}
+						dangerouslySetInnerHTML={{ __html: card.post_description }}
+						// Use this to reflect changes in the content state when editing
+						onInput={(e) => (card.post_description = e.currentTarget.innerHTML)}
+					></div>
+					<div className="hashtags p-5 rounded bg-gradient-to-br from-indigo-100 border-indigo-200 to-pink-50 mt-4 text-xs">
+						{card.post_hashtags}
+					</div>
+				</div>
+				<div className='col-span-12'>
+					<div className='border border-slate-200 text-slate-500 py-3 rounded flex justify-center items-center'>
+						<span className="text-slate-800 mr-2"><SparklesIcon width={20} height={20}/></span> Post has been published to your Instagram!
+					</div>
 				</div>
 			</div>
 		</motion.div>

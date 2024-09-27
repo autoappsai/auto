@@ -121,3 +121,32 @@ export async function getSession(shop) {
 
 	return session;
 }
+
+const handleDisconnect = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`https://graph.facebook.com/${userId}/permissions`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${accessToken}`, // Add the access token in the header
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Handle success: remove token from your database or state
+        console.log('Facebook account disconnected:', data);
+        onDisconnectSuccess(); // Call any callback after successful disconnect
+      } else {
+        throw new Error(data.error.message);
+      }
+    } catch (err) {
+      console.error('Error disconnecting Facebook account:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };

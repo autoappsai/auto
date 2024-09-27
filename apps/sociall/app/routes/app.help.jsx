@@ -123,10 +123,36 @@ export default function Settings() {
 							<br /> You can choose a time of day instead of a specific hour.
 							The options are: Morning, Midday, Afternoon, Late Afternoon, and Night. <br />
 							<br />{' '}
-							<strong className="py-2 px-4 rounded bg-slate-100 border border-slate-300 text-sm">
-								{' '}
-								Times are based on United States Eastern Time{' '}
-							</strong>{' '}
+							<br/>
+							<strong className='text-lg block mb-4'>Times Reference table:</strong>
+							<table className='table-fixed p-5 border border-slate-200'>
+								<thead className='border-b-2 border-slate-200'>
+									<th className='text-left py-2 px-4 w-[200px]'>Label</th>
+									<th className='text-left py-2 pl-1 pr-4'>Publish time</th>
+								</thead>
+								<tbody className='text-sm'>
+									<tr>
+									<td className='py-2 px-4'>Morning</td>
+									<td className='py-2 px-1'>8:00 AM ET</td>
+									</tr>
+									<tr>
+									<td className='py-2 px-4'>Midday</td>
+									<td className='py-2 px-1'>12:00 AM ET</td>
+									</tr>
+									<tr>
+									<td className='py-2 px-4'>Afternoon</td>
+									<td className='py-2 px-1'>2:00 PM ET</td>
+									</tr>
+									<tr>
+									<td className='py-2 px-4'>Late Afternoon</td>
+									<td className='py-2 px-1'>5:00 PM ET</td>
+									</tr>
+									<tr>
+									<td className='py-2 px-4'>Night</td>
+									<td className='py-2 px-1'>9:00 PM ET</td>
+									</tr>
+								</tbody>
+							</table>
 						</p>{' '}
 					</div>
 
