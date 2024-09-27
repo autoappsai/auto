@@ -19,7 +19,8 @@ export async function initTokenFlow(shop) {
 	FROM defaultdb.Post p
 	JOIN defaultdb.Installations_SocialNetworks isn ON p.installations_SocialNetworks_id = isn.id
 	JOIN defaultdb.Installations i ON isn.installations_id = i.id
-	WHERE i.shop = ${shop}`;
+	WHERE i.shop = ${shop}
+	and p.sent = FALSE`;
 }
 
 export async function saveLongLivedTokenToLatest(longLivedToken) {
